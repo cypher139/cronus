@@ -1,0 +1,353 @@
+/*
+┌───────────────────────────────────────────────────────────────────────────┐
+│ Welcome to CypherNova139 Cronus Script Builder                         	│
+│  (GNU/Linux 7.15.9-140-generic x86_64)                                    │
+│                                                                           │
+│ * Documentation:  https://www.cronusmax.com                               │
+│                                                                           │
+│                                                                           │
+│ cypher@CypherNova139 ~ $ figlet OverBlast                                 │
+│   ___                 ____  _           _                                 │
+│  / _ \__   _____ _ __| __ )| | __ _ ___| |_                               │
+│ | | | \ \ / / _ \ '__|  _ \| |/ _` / __| __|                              │
+│ | |_| |\ V /  __/ |  | |_) | | (_| \__ \ |_                               │ 
+│  \___/  \_/ \___|_|  |____/|_|\__,_|___/\__|                              │
+│                                                                           │
+│ cypher@CypherNova139 ~ $./generatedocumentation.sh OverBlast              │
+│ Processing......                                                          │
+│                                                                           │
+└───────────────────────────────────────────────────────────────────────────┘
+                                              									//v. 1.0 - 5/1/2021
+
+// Author: CypherNova139		----		Console: All		----		Controller: All		----		Script Usage: cRoNuS tEsTiNg
+                                   
+//THIS SCRIPT IS FOR EXPERIMENTAL USE ONLY AND IS NOT INTENDED FOR USE IN ACTUAL GAMEPLAY.
+
+//an idea I've had for years after fixing some eRrOrs in coding Sixaxis Remapper (i.e. adding a 100 axis value limiter), what happens if you sent more than 100 on an axis to the console? 
+//With a script name taking cues from the old "Blast Processing" marketing/meme, this script is here to find out what happens when the CM and/or game handles unexpected values.
+
+
+ //-------------------------------\\
+              Features
+ \\-------------------------------//
+This script takes the values from a given stick and multiplies them before sending the multiplied values to console.
+
+There are 2 methods to do this:
+First method takes current axis value and divides it by a set number, then adds the result to the current axis value.
+Second method mutliplies the current axis value by the specified number.
+
+THIS SCRIPT IS FOR EXPERIMENTAL USE ONLY AND IS NOT INTENDED FOR USE IN ACTUAL GAMEPLAY.
+
+
+ //-------------------------------\\
+              Controls
+ \\-------------------------------//
+ Move selected Y / X axis: Watch axis values get changed live in device monitor
+ 
+ 
+ While holding Select:
+ Configuration options -
+   L3 / R3 = Switch stick to blast
+  Triangle = Enable/Disable blast on Y axis
+    Circle = Enable/Disable blast on X axis
+   R1 = Add 1 to the division number in use
+    R2 = Subtract 1 from the division number in use
+     L1 = Add 1 to the multiplication number in use
+      L2 = Subtract 1 from the multiplication number in use
+     Up = Preset #1; 101 [sets division or multiplication number in use (enabled mode dependent) to this set number]
+    Down = Preset #2; 4 [sets division or multiplication number in use (enabled mode dependent) to this set number]
+     Left = Preset #3; 5 [sets division or multiplication number in use (enabled mode dependent) to this set number]
+     Right = Preset #4; 100 [sets division or multiplication number in use (enabled mode dependent) to this set number]
+   PS = Sets axis to blast to:
+   	If PS4 controller: Touchpad X/Y
+   	If Wiimote: Wii IR X/Y
+   	If PS3 controller: Sixaxis X/Y
+   
+ 
+ 
+
+
+
+ //-------------------------------\\
+              Discoveries
+ \\-------------------------------//
+
+
+    div = 101
+    //LIMITATION: Looks like 8-bit values are used for the axises. Limited to +/127. Mimumum div value = 4, 100 = 101 sent, 101 and higher = disable - bad division/not whole number
+    
+
+-------------------------------\\
+ --- Games tested:
+//Uncharted 1 / TLoU: Control inverts on any value above +/-100. 101 = full speed, 120 = invert + hold stick slightly in direction - meaning character walk softly/sneaks
+//NFS: MW (2012): same as above. 120/125 wheels turn slightly less
+//Does CM actually send inverted?
+-------------------------------//
+
+*/
+
+//
+//TRACE values
+//TRACE 1: (1st digit) Enabled on Y axis (2nd digit) Enabled on X axis
+//TRACE 2: debug
+//TRACE 3: debug
+//TRACE 4: Current Division or multiplication number (depending on enabled mode) for Y axis
+//TRACE 5: Current Division or multiplication number (depending on enabled mode) for X axis
+//TRACE 6: debug (gets value of current Y/X axises atm)
+
+//1 = 1st digit Y 2nd digit X modes
+//4 = div/mpY
+//5 = div/mpX
+//6 = debug
+
+int activeAxisY, activeAxisX, invX, invY, mpY, mpX, divY, divX, enableY, enableX, a1;
+
+init {
+//-------------------------------\\
+//   Default Settings
+//-------------------------------//
+//Use TRUE or 1 to enable, FALSE or 0 to disable
+
+// ------\================================
+//  [I]   \   Basic Functions
+// --------\==============================
+ 
+    // Enable the OverBlast axis values at startup?
+    // 2 modes are available. Mode #1 uses division + addition, Mode #2 uses multiplication.
+    // Y axis and X axis can be setup independently.
+    enableY = 1
+    enableX = 1
+
+// ------\================================
+//  [II]  \   Axis Configuration
+// --------\==============================
+
+    // Default stick to .. uh .. overblast
+    activeAxisY = PS3_LY
+    activeAxisX = PS3_LX
+
+// ------\================================
+//  [III] \   Maths
+// --------\==============================  
+
+	//Mode #1
+	// Value to divide the actual stick value by. This calculated values gets added to the actual stick value, console sees actual stick value divided by this number + actual stick value.
+    // Y and X axis each have their own independent value to set.
+    divY = 101
+    divX = 101
+    //LIMITATION: Looks like 8-bit values are used for the axises. Limited to +/127. Mimumum div value = 4, 100 = 101 sent, 101 and higher = disable - bad division/not whole number
+    
+    //Mode #2
+    // Value to multiply the actual stick values by. Console will see actual stick value multiplied by this number.
+    // Y and X axis each have their own independent value to set.
+    mpY = 4
+    mpX = 4
+    
+    set_val(TRACE_1, enableY * 10 + enableX);
+}
+
+
+
+
+main {
+//-------------------------------
+// Configure Button: Send press to console, or configure script settings? 
+//-------------------------------
+    // Configuration Button was Pressed.
+    if(event_release(1) && get_ptime(1) < 200) {
+        combo_run(createSelectPress);
+    } 
+    // Configuration Button was Held, Activate User Configuration Mode
+    if(get_val(1) && get_ptime(1) > 200) { 
+        combo_run(configure);
+    }
+    // Block Activation Button Output. If button was pressed, then the press is recreated.
+    if(get_val(1)) {set_val(1,0);}
+
+// ----
+
+    //Blasting away - Y Axis
+    if(enableY == 1) {
+    	set_val(TRACE_6, get_val(activeAxisY))
+    	set_val(activeAxisY, (get_val(activeAxisY) / divY) + get_val(activeAxisY));
+    	set_val(TRACE_4, divY);
+    }
+    if(enableY == 2) {
+    	set_val(TRACE_6, get_val(activeAxisY))
+    	set_val(activeAxisY, get_val(activeAxisY) * mpY);
+    	set_val(TRACE_4, mpY);
+    }
+    
+   //Blasting away - X axis
+    if(enableX == 1) {
+    	set_val(TRACE_6, get_val(activeAxisX))
+    	set_val(activeAxisX, (get_val(activeAxisX) / divX) + get_val(activeAxisX));
+    	set_val(TRACE_5, divX);
+    }
+    if(enableX == 2) {
+    	set_val(TRACE_6, get_val(activeAxisX))
+    	set_val(activeAxisX, get_val(activeAxisX) * mpX);
+    	set_val(TRACE_5, mpX);
+    }
+
+}
+
+
+combo configure {
+    set_val(TRACE_1, enableY * 10 + enableX);
+    
+//-------------------------------
+// Options Toggles
+//-------------------------------
+
+// Toggle On/Off
+	if(event_press(PS3_START)) {
+		enableY=!enableY
+		enableX=!enableX
+	}
+//  Enable Y axis remap
+    if(event_press(PS3_TRIANGLE)) {
+		if(enableY < 2) {
+	    		enableY = enableY++;
+	    		combo_run(Rumble1);
+			} else {
+				enableY = 0;
+			}
+    } 
+//  Enable X axis remap
+    if(event_press(PS3_CIRCLE)) {
+		if(enableX < 2) {
+    		enableX = enableX++;
+    		combo_run(Rumble1);
+		} else {
+			enableX = 0;
+		}
+    }
+
+//  Use left stick
+    if(event_press(PS3_L3)) {
+        activeAxisY = PS3_LY
+        activeAxisX = PS3_LX
+    }
+//  Use right stick
+    if(event_press(PS3_R3)) {
+        activeAxisY = PS3_RY
+        activeAxisX = PS3_RX
+    }
+       // divY in
+    if(event_press(PS3_R1)) {
+       divY = divY + 1
+       if(divY > 105) {divY = 4}
+       divX = divX + 1
+       if(divX > 105) {divX = 4}
+    }
+      // divY dec
+    if(event_press(PS3_R2)) {
+       divY = divY - 1
+       if(divY < 4) {divY = 1}
+       divX = divX - 1
+       if(divX < 4) {divX = 1}       
+    }
+    // mp inc
+    if(event_press(PS3_L1)) {
+       mpY = mpY + 1
+       if(mpY > 105) {mpY = 1}
+       mpX = mpX + 1
+       if(mpX > 105) {mpX = 1}
+    }
+      // mp dec
+    if(event_press(PS3_L2)) {
+       mpY = mpY - 1
+       if(mpY < 0) {mpY = 0}
+       mpX = mpX - 1
+       if(mpX < 0) {mpX = 0}
+    }
+/*    
+    if(event_press(PS3_L1)) {
+      loadprofile()
+    }
+    if(event_press(PS3_R1)) {
+      saveprofile()
+    }*/
+    //dpad presets   
+    
+    if(event_press(PS3_UP)) {
+       setAPresetValue(101);
+    }
+    if(event_press(PS3_DOWN)) {
+       setAPresetValue(4);
+    }
+    if(event_press(PS3_LEFT)) {
+       setAPresetValue(5);
+    }
+    if(event_press(PS3_RIGHT)) {
+       setAPresetValue(100);
+    }
+    
+//Use Wii IR / PS4 Touchpad
+    if(event_press(PS4_PS)) {
+        //wii/PS4
+    	if(get_controller() == PIO_PS4 || get_controller() == PIO_WII) {
+	        activeAxisY = WII_IRY
+	        activeAxisX = WII_IRX
+			if(get_controller() == 3) {
+				invX = -1
+			} else {
+		    	invX = 1
+			}
+    	}
+	//Use PS3 SixAxis on PS3 controller 4 teh Lolz
+	    if(get_controller() == PIO_PS3) {
+	        activeAxisY = PS3_ACCY
+	        activeAxisX = PS3_ACCX
+	    }
+	}
+  //modulo 2 test for fun
+    if(event_press(PS3_UP)) {a1 = a1 + 1}
+    if(event_press(PS3_DOWN)) {a1 = a1 - 1}    
+    set_val(TRACE_2, a1 % 2)
+    set_val(TRACE_3, a1)   
+    set_led(LED_3, a1 % 2)
+    
+    
+    
+    set_val(PS3_START, 0);
+    set_val(PS3_L3, 0);
+    set_val(PS3_R3, 0);
+    set_val(PS3_PS, 0);
+    set_val(PS3_TRIANGLE, 0);
+    set_val(PS3_CIRCLE, 0);
+    set_val(PS3_CROSS, 0);
+    set_val(PS3_SQUARE, 0);
+    set_val(PS3_L1, 0);
+    set_val(PS3_L2, 0);
+    set_val(PS3_R1, 0);
+} 
+
+combo createSelectPress {
+    set_val(1, 100);
+    wait(get_ptime(1));
+    set_val(1, 0);
+}
+
+combo Rumble1 { 
+    // 1 short rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+
+function setAPresetValue(_m1) {
+	if(enableY == 1) {
+		divY = _m1;
+	}
+	if(enableY == 2) {
+		mpY = _m1;
+	}
+	if(enableX == 1) {
+		divX = _m1;
+	}
+	if(enableX == 2) {
+		mpX = _m1;
+	}
+}

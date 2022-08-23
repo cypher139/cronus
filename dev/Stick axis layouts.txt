@@ -1,0 +1,30 @@
+//Notes:
+/*
+Y Up/Down
+X Left/Right Axis +/- Listings.
+
+Sticks:
+	Y: -/+
+	X: -/+
+
+PS3
+SixAxis:
+	Y: -/+
+	X: +/-
+
+PS4
+SixAxis:
+	Y: +/-
+	X: +/-
+Touchpad:
+	Y: -/+
+	X: -/+
+
+Wii
+Motion:
+	Y: -/+
+	X: +/-
+IR:
+	Y: -/+
+	X: +/-
+*/

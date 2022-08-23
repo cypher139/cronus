@@ -1,0 +1,78 @@
+/* *
+yorbie uninvert */
+
+int stage;
+
+main {
+
+//Various control stages fixes
+	if(stage >= 1) {
+		swap(PS4_L2, PS4_R2)
+	}
+//--	
+	if(stage >= 2) {
+		set_val(PS4_LX, inv(get_val(PS4_LX)))
+	}
+//--	
+	if(stage == 3) {
+		set_val(PS4_LY, inv(get_val(PS4_LY)))
+		set_val(PS4_RX, inv(get_val(PS4_RX)))
+		set_val(PS4_RY, inv(get_val(PS4_RY)))
+		swap(PS4_LY, PS4_RY)
+		swap(PS4_LX, PS4_RX)
+	}
+
+
+//Boss: Quick switch between fixed and not fixed controls.
+
+	if(event_press(PS4_R3) || event_press(PS4_CIRCLE)) {
+		if(stage > 0) {
+			stage = 0
+		} else {
+			stage = 3
+		}
+	}
+	
+//Touchpad: top press fixed controls, bottom press stage 1/2/3 depending on X position.
+	
+	if(ps4_touchpad(PS4T_P1)) {
+		if(get_val(PS4_TOUCHY) < -40) {
+			set_val(TRACE_6, 1)
+			stage = 0
+		} else {
+			set_val(TRACE_6, 0)
+			if(get_val(PS4_TOUCHX) < -50) {stage = 1}
+			if(get_val(PS4_TOUCHX) > -50) {stage = 2}
+			if(get_val(PS4_TOUCHX) > 50) {stage = 3}
+		}
+	}
+	
+set_val(TRACE_1, stage)
+
+//Dpad left/right stage set
+
+//  stage inc
+	if(event_press(PS3_RIGHT)) {
+		stage = stage + 1
+		if(stage > 3) {
+			stage = 0
+			combo_run(Rumble1)
+		}     
+	}
+	//  stage dec
+	if(event_press(PS3_LEFT)) {
+		stage = stage - 1
+		if(stage < 0) {
+			stage = 3
+			combo_run(Rumble1)
+		}
+	}
+}
+
+
+combo Rumble1 { 
+    // 1 short rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}

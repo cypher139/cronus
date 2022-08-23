@@ -1,0 +1,13 @@
+int a = 3;
+
+main {
+    
+    if(event_press(PS3_UP)) {a = a + 1}
+    if(event_press(PS3_DOWN)) {a = a - 1}
+    
+    set_val(TRACE_1, a % 2)
+    set_val(TRACE_2, a)
+    
+    set_led(LED_1, a % 2)
+
+}

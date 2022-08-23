@@ -1,0 +1,39 @@
+//When active uses R2 to fire, and toggles strafe if L2 is pressed.
+// Hold L3 to temporarily restore button mappings.
+
+define StrafeButton = PS3_L2;
+define AltFireButton = PS3_R2;
+
+
+int led, currentled, strafeenable;
+
+
+init {
+
+//This led stuff shamelessly copied from RubberBand script by vkrouso
+    led = 0;
+    reset_leds();
+    while(led<4){
+        if(get_led(led)==1) currentled = led;
+        led = led+1;
+    }
+}
+
+main {
+
+//Strafe toggle
+if(event_release(StrafeButton) && get_ptime(StrafeButton) < 170) {
+    strafeenable=!strafeenable;
+    if(strafeenable == 1) {
+        set_val(StrafeButton, 100);
+    } else if(strafeenable == 0) {
+        set_val(StrafeButton, 0);
+    }
+} 
+
+//Use R2 to fire
+if(get_val(AltFireButton) > 5) {
+    set_val(PS3_CIRCLE, get_val(AltFireButton));
+    set_val(AltFireButton, 0);
+}
+}

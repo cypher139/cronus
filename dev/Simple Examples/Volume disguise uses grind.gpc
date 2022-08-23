@@ -1,0 +1,88 @@
+/* 
+
+
+Grinders for "Volume" trophies,
+100 Disguise powerup uses, 50 locker uses.
+
+The script runs when the game's powerup or action buttons is used, press again to turn off.
+
+TRACE_3 = Grind: How many times a powerup has been used.
+TRACE_4 = Grind: How many times an action was performed.
+
+disguise = masquerade = 10 seconds power, 10 sec charge
+locker animation = 1.5 sec
+veil = 8 powerup, 6 charge
+
+ */
+// Author: CypherNova139		----		Console: All		----		Controller: All		----		Script Usage: Task Grinding
+
+
+
+
+int powerupButton, actionButton, run1, run2;
+
+init {
+//-------------------------------
+// Controls Configuration
+//-------------------------------
+// Please configure which buttons are the current ones used in-game, as depending on the game version, you may need to change the buttons used.
+// Asia releases have the X / Circle buttons reversed as per usual on those region's games.
+
+//Worldwide release
+	powerupButton = PS4_R2
+	actionButton = PS4_CROSS
+
+//Asia release
+//Uncomment if playing on an Asian release of the game.
+/*
+	powerupButton = PS4_R2
+	actionButton = PS4_CIRCLE
+*/
+
+//PSTV
+//Uncomment if playing the Vita version on a PS Vita or PlayStation TV system.
+/*
+	powerupButton = PS4_R1
+*/
+}
+
+main {
+//Triggers
+	if(event_press(powerupButton)) {
+		run1=!run1
+	}
+	if(event_press(actionButton)) {
+		run2=!run2
+	}
+//Run Grinders	
+	if(run1) {
+		combo_run(disguiseuse)
+	}
+	if(run2) {
+		combo_run(lockeruse)
+	}
+// On or Off
+	set_val(TRACE_1, run1)
+	set_val(TRACE_2, run2)
+}
+
+
+combo disguiseuse {
+	set_val(powerupButton, 100);
+	wait(130);
+	set_val(powerupButton, 0);
+	wait(20000);
+	set_val(TRACE_3, get_val(TRACE_3) + 1)
+}
+
+combo lockeruse {
+	set_val(actionButton, 100);
+	wait(130);
+	set_val(actionButton, 0);
+	wait(1500);
+	set_val(actionButton, 100);
+	wait(130);
+	set_val(actionButton, 0);
+	wait(1500);
+	set_val(TRACE_4, get_val(TRACE_4) + 1)
+}

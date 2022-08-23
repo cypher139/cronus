@@ -1,0 +1,12 @@
+int enable;
+
+main {
+
+if (event_press(PS4_L3)) { enable=!enable}
+
+if(enable) {
+set_val(PS4_R2, 100)
+set_val(PS4_CROSS, 100)
+}
+
+}

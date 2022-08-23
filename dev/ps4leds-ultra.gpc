@@ -1,0 +1,95 @@
+//This is a test script for the PS4 LED, to have the LEDs light up with any color you wish.
+
+//Original concept from "Ultrascript" by renfrozodiac, with a few mods:
+//- fix possible incorrect LED values (<0 or >3)
+//- fix LED script activation to be simpler 
+
+//Enjoy!
+
+//Controls:
+//While holding Touchpad:
+// Up / Right / Down / Left: Decrease light brightness for LEDs 1-4.
+// X / () / /\ / []: Increase light brightness for LEDs 1-4. Face button colors = LED colors
+//Max. 3 different brightness levels.
+
+
+
+define BRIGHT = 1; //Do not change
+int LED, a, b, c, d;
+
+main {
+
+
+    if(event_press(PS4_TOUCH)){
+        LED = 1;
+    } else if(event_release(PS4_TOUCH)){
+        LED = 0;
+    }
+
+
+    led(a,b,c,d);
+   
+
+    //LED 1 - /\
+    if(LED && event_press(PS4_CROSS)){
+        a = a + 1;
+        if( a > 3) { a = 3};
+    }
+
+    if(LED && event_press(PS4_DOWN)){
+        a = a - 1;
+        if( a < 0) { a = 0};
+    }
+    //LED 1
+
+    //LED 2 - ()
+    if(LED && event_press(PS4_CIRCLE)){
+        b = b + 1;
+        if( b > 3) { b = 3};
+    }
+
+    if(LED && event_press(PS4_RIGHT)){
+        b = b - 1;
+        if( b < 0) { b = 0};
+    }
+    //LED 2
+
+    //LED 3 - X
+    if(LED && event_press(PS4_TRIANGLE)){
+        c = c + 1;
+        if( c > 3) { c = 3};
+    }
+
+    if(LED && event_press(PS4_UP)){
+        c = c - 1;
+        if( c < 0) { c = 0};
+
+    }
+    //LED 3
+    
+    //LED 4 - []
+    if(LED && event_press(PS4_SQUARE)){
+        d = d + 1;
+        if( d > 3) { d = 3};
+    }
+
+    if(LED && event_press(PS4_LEFT)){
+        d = d - 1;
+        if( d < 0) { d = 0};
+    }
+    //LED 4
+    
+
+set_val(TRACE_1, a);
+set_val(TRACE_2, b);
+set_val(TRACE_3, c);
+set_val(TRACE_4, d);
+set_val(TRACE_5, LED);
+}
+
+function led(a,b,c,d) {
+set_led(LED_1,a);
+set_led(LED_2,b);
+set_led(LED_3,c);
+set_led(LED_4,d);
+}

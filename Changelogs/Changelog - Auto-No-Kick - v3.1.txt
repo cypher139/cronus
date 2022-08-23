@@ -1,0 +1,27 @@
+new for 3.1
+
+Additions:
+* 2nd activation axis. 
+== By default it will now sense X axis along with the usual Y axis. 
+== Both axises need to be idle for script actions to activate. Movement on either axis beyond deadzone stops script actions.
+* A 2nd button can now also be held down.
+* Configurable strength of held down button(s).
+* Configuration Controls Updates:
+== Moved misc script controls to Right stick/R3. (R3 = Enable, R3+RS Up = Enable Rumble, R3+RS Down = Enable LED)
+== Added in-game ability to select nearly any Button/axis in-game and bind it to button #1 / #2 to Press, or Axis #1 / #2 to hold. (Select + [] to select button ID, Select + L1/R1 for binding)
+== Updated Wait Time adjustment (Select + Up/Down). You can now hold Up to set wait time to 250ms; Down to set wait time to 20, rest time to 25.
+* Presets Updates:
+== Added 2 Games.
+== Removed presets for games in which servers have closed, and an untested preset.
+* Related documentation, variable names, and customzation area updates.
+
+Fixes: 
+- Start preset listened to the wrong button to activate.
+- Saved 9 bytes by updating process for detecting if controller is idle.
+- some compile fixes for Zen (PS4_TOUCHX depreciated)
+
+
+
+Known issues:
+- Zen: recommended to use duint8 instead of depreciated dbyte. CM+ however does not support "duint8" and instead uses dbyte. Rock and hard place.
+- Touchpad / Sixaxis activationAxis is setup to still only listen to X axis. Y axis remains on stick if mode selected. (I deemed it not worth the extra bytes to add Y axis support for this unless needed.)

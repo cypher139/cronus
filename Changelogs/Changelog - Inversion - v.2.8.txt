@@ -1,0 +1,8 @@
+- Improved upon Profiles setup:
+   > Added Trigger Keys to activate either Profile #1 or Profile #2
+   > Added optional Axis Check, useful for games where Trigger Key used does multiple actions that all do not require the same inversion setting.
+   > Added Profile Sets feature.
+   > Added 2 pre-programmed Profile Sets: Set #2 passes through or inverts Right Stick. Set #3 passes through or swaps A/X for RT/LT. (Set #1 is user saved settings in device.)
+- Added Disabling of Rumble confirmation when Profile is switched ingame.
+- Documentation Updates   
+   

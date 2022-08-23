@@ -1,0 +1,559 @@
+/*
+  ____  _          _          _     
+ / ___|(_)_  __   / \   __  _(_)___ 
+ \___ \| \ \/ /  / _ \  \ \/ / / __|
+  ___) | |>  <  / ___ \  >  <| \__ \
+ |____/|_/_/\_\/_/   \_\/_/\_\_|___/  //v 2.3 - 5/8/2020
+
+
+// Author: CypherNova139		----		Console: All		----		Controller: All*		----		Script Usage: Accessibility
+// *Xbox controllers or other motionless controllers cannot use Sixaxis motion controls to thumbstick mode.
+*/
+
+//This script remaps the Sixaxis function of PS3/PS4 games and controllers in 2 distinct modes:
+
+	//-------------------------------
+	// Mode #1 (default)
+	//		Controller Stick Input to Sixaxis Output.
+	//-------------------------------
+/*
+If you have a need to use normal thumbstick controls during a PlayStation Sixaxis Motion Control segment of a PS3/4 game, or you are utilizing controllers without motion features (i.e. Xbox controllers):
+
+This script mode remaps one of the Analog Sticks, or Wii IR / PS4 Touchpad, to the Sixaxis Y & X axises, for use during motion control segments of a PS3 or PS4 game. 
+
+Tested with "Bentley's Hackpack", "LittleBigPlanet". 
+Due to PS4 and CM limitations, script compatibility with **PS4 Games** is not guaranteed. Please stay tuned to the forums for more info.
+*/
+
+	//-------------------------------
+	// Mode #2 (default for Xbox hosts)
+	//		Controller Sixaxis Input to Stick Output.
+	//-------------------------------
+/*
+***** If you need to use motion controls in a game that originally does not feature them:
+
+This script mode remaps the Sixaxis (or Wii IR / PS4 Touchpad) to a thumbstick.
+          **This mode is active by default if you are using an Xbox console.**
+Tested with "Mirror's Edge". 
+*/
+
+//Press Select + Cross / A button to switch between script modes.
+
+//-------------------------------
+// Controls:
+//-------------------------------
+
+//Move selected axis (Default: Left stick) to use the Sixaxis feature in-game. 
+
+// While holding Select:
+//      Start: Enable/disable the script, in case the game is at a point where both sticks are expected as normal.
+//        L1 : Load profile saved on the CronusMAX.
+//        R1 : Save current settings into a profile.
+//   L3 / R3 : Switch which stick to remap.
+//        L2 : Switch which Sixaxis axises are subject to the remap. See "Axis modes" note below. (A rumble indicates successful change, or in the case of default setting no rumble occurs)
+//        R2 : Toggle sending original axis to console (Stick to Sixaxis mode)
+//        Up : Increment sensitivity response of Sixaxis Y axis output compared to axis in use. (Max 50) 
+//      Down : Decrement sensitivity response of Sixaxis Y axis output compared to axis in use. 
+//     Right : Increment sensitivity response of Sixaxis X axis output compared to axis in use. (Max 50)
+//      Left : Decrement sensitivity response of Sixaxis X axis output compared to axis in use. 
+//     /\ / Y: Toggle remap of Y axis.
+//     () / B: Toggle remap of X axis.
+//  Cross / A: Switch script modes between Stick to Sixaxis / Sixaxis to Stick.
+//     [] / X: Enable or Disable Input Addition of Host Axis input from Controller. 
+//				I.E. when using Sixaxis to left stick: Add controller inputs from both Sixaxis and Left stick.
+//   (PS4) PS: Utilize the Touchpad instead of the sticks to use Sixaxis.
+// (Wii) HOME: Utilize the Wii Remote IR sensing instead of the sticks to use Sixaxis.
+
+//-------------------------------
+// Notes:
+//-------------------------------
+// This script assumes a 2D movement plane that a normal thumbstick provides.
+// A game expecting more 3D movement such as heavily using the Gyro may require adjusting the sensitivity and the axises to use with your game! (maths limitations apply)
+
+// Axis modes:
+// 0 - Default
+// 1 - ACCY ACCX (default)
+// 2 - GYROY GYROX
+// 3 - ACCY GYROX
+// 4 - GYROY ACCX
+// 5 - (Test Profile) - GYROY ACCX divY = 4 divX = 15 accZhold = 1
+// 6 - (Test Profile) - Racing controls with Sixaxis
+
+//-------------------------------
+// "TRACEs" (notifications, view in Device Monitor while your device is connected up to your PC)
+//-------------------------------
+
+//TRACE_1:  First Digit: Remap enabled on Y axis.
+//         Second Digit: Remap enabled on X axis.
+//TRACE 2:  First Digit: Stick <-> Sixaxis mode. 1 = Sixaxis to Stick.
+//         Second Digit: Input Addition enabled/disabled.
+//TRACE 3: Current loaded "Profile" (Select + L2)
+//         Also, Using Wii IR or Touchpad = 50, Profile was loaded or saved in CM memory = 98 or 99.
+//TRACE 5: Current division value of Y axis. (updates while holding Select)
+//TRACE 6: Current division value of X axis. (updates while holding Select)
+
+int ControlAxisY, ControlAxisX, HostAxisY, HostAxisX, ogsend, invX, invY, divY, divX, Profile, AccZhold, xbm, enableY, enableX, adm, c1, c2, x1, x2;
+
+init {
+//-------------------------------
+// Default Settings
+//-------------------------------
+// Change these settings to your liking, i.e. what you need loaded by default when you first activate this script.
+// Use TRUE or 1 to enable, FALSE or 0 to disable
+
+//Remap Settings
+//========
+
+    // Which stick would you prefer remapped at startup?
+    ControlAxisY = PS3_LY
+    ControlAxisX = PS3_LX
+    
+    // Which Sixaxis axises would you prefer to use?
+    //ACC = position, GYRO = speed
+    HostAxisY = PS4_ACCY
+    HostAxisX = PS4_ACCX
+    
+    // Enable the Sixaxis remap at startup?
+    
+    //Enable for the Y axis (Up / Down)
+    enableY = 1
+    //Enable for the X axis (Left / Right)
+    enableX = 1
+
+    // Note: Sixaxis axis values are only to +/-25 instead of +/-100. To get better, slower axis response in-game, how should we divide the values presented in the remap?
+    // A higher number means more response from the original axis is needed to use the Sixaxis feature.
+    // 1 is division disabled - presents as original axis value. 2 is a bit fast, 3 seems to be the sweet spot for precise movement with less axis travel, 4 may require more travel along the original axis.
+    // If using Mode #2 this is a multiplication value instead and higher numbers mean less original axis travel is needed.
+    //
+    // Note: Y (up/down) and X (left/right) axises each have their own value, to accomodate games that are a bit more picky in their use of the Sixaxis.
+    // 
+    divY = 3
+    divX = 3
+
+//Misc Functions
+//========
+
+    // By default, Hold the ACCZ axis in a specific position? (default: -25 upside-down state)
+    AccZhold = 0
+    
+    // Are you playing on an Xbox?
+    xbm = 0
+
+	// Sixaxis to Stick remap mode: Input Addition.
+	// Add together inputs from both Stick (Host) and Sixaxis (Control) axises?
+	adm = 1
+	
+	// Stick to Sixaxis remap mode: Send to Console
+	// Send Original Control axis inputs (controller inputs) to the Host console?
+	ogsend = 0
+
+
+//----------------------------------------------
+// There is no need to change anything else!
+
+// Default Inversion values.
+    // Notes:
+    // - Sixaxis X axis is inverted compared to the thumbsticks.
+    // - If using a Wii Remote's IR, the inversion is not needed.
+    // - PS3 / Wii controller Sixaxis ACCY axis is inverted; PS4 is not.
+	defaultinvert(xbm);
+	
+// Xbox Overrides.
+    if(get_console() == 2 || get_console() == 5) {
+    	switchSticktoX(1)
+    	xbm = 1
+    	adm = 1
+	}
+	
+    set_val(TRACE_1, enableY * 10 + enableX);
+    set_val(TRACE_2, xbm * 10 + adm);
+}
+
+main {
+   // User Customization Mode Activation:
+   // Customization Button Pressed.
+    if(event_release(PS3_SELECT) && get_ptime(PS3_SELECT) < 160) {
+        combo_run(cpress);
+    } 
+    // Customization Button Held, Activate User Customization Mode
+    if(get_val(PS3_SELECT) && get_ptime(PS3_SELECT) > 160) { 
+        combo_run(customize);
+    }
+    // Block Activation Button Output. If button was pressed, then the press is recreated.
+    if(get_val(PS3_SELECT)) {
+        set_val(PS3_SELECT,0);
+    }
+
+//-------------------------------
+// Remaps
+//-------------------------------
+
+// Y Axis (Up / Down)
+    if(enableY == 1) {
+    	if(xbm == 1) {
+    		x1 = get_val(ControlAxisY) * divY * invY;
+		} else {
+			x1 = get_val(ControlAxisY) / divY * invY;
+		}
+		//Input Addition
+		if(adm == 1) {
+			c1 = get_val(HostAxisY) + x1;
+		} else {
+			c1 = x1
+		}
+//		set_val(TRACE_1, c1);
+		if(c1 > 100) {c1 = 100;} 
+		if(c1 < -100) {c1 = -100;} 
+		set_val(HostAxisY, c1);
+//		set_val(TRACE_2, c1);
+        if(ControlAxisY != HostAxisY && ogsend == 0) {set_val(ControlAxisY, 0);}
+    }
+    
+// X Axis (Left / Right)
+    if(enableX == 1) {
+    	if(xbm == 1) {
+    		x2 = get_val(ControlAxisX) * divX * invX;
+		} else {
+			x2 = get_val(ControlAxisX) / divX * invX;
+		}
+		//Input Addition
+		if(adm == 1) {
+			c2 = get_val(HostAxisX) + x2;
+		} else {
+			c2 = x2
+		}
+//		set_val(TRACE_3, c2);
+		if(c2 > 100) {c2 = 100;} 
+		if(c2 < -100) {c2 = -100;} 
+		set_val(HostAxisX, c2);
+//		set_val(TRACE_4, c2);
+        if(ControlAxisX != HostAxisX && ogsend == 0) {set_val(ControlAxisX, 0);}   
+    }
+    
+//Other Options
+	if(AccZhold == 1) {
+	//(note: -25 == upside down controller (DS4), right side up (DS3))
+		set_val(PS4_ACCZ, -25);
+	}
+}
+
+//In-Game User Customization
+combo customize {
+//-------------------------------
+// Update TRACE notifications
+//-------------------------------
+    set_val(TRACE_1, enableY * 10 + enableX);
+    set_val(TRACE_2, xbm * 10 + adm);
+    set_val(TRACE_5, divY);
+    set_val(TRACE_6, divX);
+
+//-------------------------------
+// Options Toggles
+//-------------------------------
+
+// Toggle On/Off
+	if(event_press(PS3_START)) {
+		enableY=!enableY
+		enableX=!enableX
+	}
+//  Switch Stick to Sixaxis or Sixaxis to Stick
+    if(event_press(PS3_CROSS)) {	
+    	if(get_console() == 2 || get_console() == 5) {
+    	   	xbm = 1
+	   	} else {
+	   		xbm = !xbm;
+   		}
+		switchSticktoX(xbm);
+    }
+//  Input Addition
+    if(event_press(PS3_SQUARE)) {
+        adm = !adm;
+        if(adm) {combo_run(Rumble1);}
+    }
+//  Enable Y axis remap
+    if(event_press(PS3_TRIANGLE)) {
+        enableY = !enableY;
+        if(enableY) {combo_run(Rumble1);}
+    } 
+//  Enable X axis remap
+    if(event_press(PS3_CIRCLE)) {
+        enableX = !enableX;
+        if(enableX) {combo_run(Rumble1);}
+    } 
+//  Send Original input
+    if(event_press(PS3_R2)) {
+        ogsend = !ogsend;
+        if(ogsend) {combo_run(Rumble1);}
+    }
+    
+//-------------------------------
+// Axis Setup
+//-------------------------------
+
+//  Use Left stick
+    if(event_press(PS3_L3)) {
+    	if(xbm == 1) {
+        	HostAxisY = PS3_LY
+        	HostAxisX = PS3_LX
+        } else {
+       		ControlAxisY = PS3_LY
+        	ControlAxisX = PS3_LX
+    	}
+		defaultinvert(xbm);
+    }
+//  Use Right stick
+    if(event_press(PS3_R3)) {
+    	if(xbm == 1) {
+        	HostAxisY = PS3_RY
+        	HostAxisX = PS3_RX
+        } else {
+       		ControlAxisY = PS3_RY
+        	ControlAxisX = PS3_RX
+    	}
+		defaultinvert(xbm);
+    }
+//  divY inc
+    if(event_press(PS3_UP)) {
+       divY = divY + 1
+       if(divY > 50) {divY = 1}
+    }
+//  divY dec
+    if(event_press(PS3_DOWN)) {
+       divY = divY - 1
+       if(divY < 1) {divY = 1}
+    }
+//  divX inc
+    if(event_press(PS3_RIGHT)) {
+       divX = divX + 1
+       if(divY > 50) {divY = 1}
+    }
+//  divX dec
+    if(event_press(PS3_LEFT)) {
+       divX = divX - 1
+       if(divX < 1) {divX = 1}
+    }
+//  Extra controller axis (if available)
+    if(event_press(0)) {
+        //wii/PS4
+    	if(get_controller() == 3 || get_controller() == 4) {
+	    	ControlAxisY = 29
+        	ControlAxisX = 28
+        	defaultinvert(xbm);
+
+        	set_val(TRACE_3, 50);
+        	if(xbm == 1) {
+        		divX = 1
+        		divY = 1
+    		}
+    	}
+	}
+	
+//-------------------------------
+// Profiles: Load / Save current settings from CM memory
+//-------------------------------
+
+    // Load/save
+    if(event_press(PS3_L1)) {
+      loadprofile()
+    }
+    if(event_press(PS3_R1)) {
+      saveprofile()
+    }
+    // Profile settings switcher
+    if(event_press(PS3_L2)) {
+        Profile = Profile + 1;
+        if(Profile == 7) {Profile = 0}
+        profileswap();
+        set_val(TRACE_3, Profile);
+        if(Profile !=0) {
+            combo_run(Rumble1);
+        }
+    }
+//Disable commands to console while selecting script options
+    set_val(2, 0);
+    set_val(3, 0);
+    set_val(4, 0);
+    set_val(5, 0);
+    set_val(6, 0);
+    set_val(7, 0);
+    set_val(8, 0);
+	set_val(13, 0);
+	set_val(14, 0);
+	set_val(15, 0);
+	set_val(16, 0);
+    set_val(0, 0);
+    set_val(17, 0);
+    set_val(18, 0);
+    set_val(19, 0);
+    set_val(20, 0);
+} 
+
+combo cpress {
+    set_val(PS3_SELECT, 100);
+    wait(get_ptime(PS3_SELECT));
+    set_val(PS3_SELECT, 0);
+}
+combo Rumble1 { 
+    // 1 short rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+function profileswap() {
+    if(Profile == 0) {
+    //Default
+        switchSticktoX(xbm);
+    }
+    if(Profile == 1) {
+    //acc
+        HostAxisY = PS4_ACCY
+    	HostAxisX = PS4_ACCX
+    }
+    if(Profile == 2) {
+    //Gyro
+        HostAxisY = PS4_GYROY
+    	HostAxisX = PS4_GYROX
+    }
+    if(Profile == 3) {
+    //Y acc X gyro
+        HostAxisY = PS4_ACCY
+    	HostAxisX = PS4_GYROX
+    }
+    if(Profile == 4) {
+    //Y gyro X acc
+        HostAxisY = PS4_GYROY
+    	HostAxisX = PS4_ACCX
+    }
+    if(Profile == 5) {
+    //Game specific - test
+        HostAxisY = PS4_GYROY
+    	HostAxisX = PS4_ACCX
+    	divY = 4
+    	divX = 15
+    	AccZhold = 1
+    }
+    if(Profile == 6) {
+//TEST racing pedals remap, atm not working
+		enableX = 0
+	    ControlAxisY = PS4_ACCY
+	    ControlAxisX = PS4_ACCX
+	    HostAxisY = PS3_R2
+	    HostAxisX = PS3_L2
+	    divY = 4
+	    divX = 4
+		AccZhold = 0
+		invX = -1
+	    invY = -1
+    }
+}
+function loadprofile() {
+            ControlAxisY = get_pvar(SPVAR_1, 0, 200, 0);
+            ControlAxisX = get_pvar(SPVAR_2, 0, 200, 0);
+            HostAxisY = get_pvar(SPVAR_3, 0, 200, 0);
+            HostAxisX = get_pvar(SPVAR_4, 0, 200, 0);
+            divY = get_pvar(SPVAR_5, 0, 200, 0);
+            divX = get_pvar(SPVAR_6, 0, 200, 0);
+            xbm = get_pvar(SPVAR_7, 0, 200, 0);
+            adm = get_pvar(SPVAR_8, 0, 200, 0);
+            enableY = get_pvar(SPVAR_9, 0, 2, 0);
+            enableX = get_pvar(SPVAR_10, 0, 2, 0);
+            AccZhold = get_pvar(SPVAR_11, 0, 2, 0);
+            set_val(TRACE_3, 98);
+            defaultinvert(xbm);
+            combo_run(Rumble1);
+}
+function saveprofile() {
+            set_pvar(SPVAR_1, ControlAxisY);
+            set_pvar(SPVAR_2, ControlAxisX);
+            set_pvar(SPVAR_3, HostAxisY);
+            set_pvar(SPVAR_4, HostAxisX);
+            set_pvar(SPVAR_5, divY);
+            set_pvar(SPVAR_6, divX);
+            set_pvar(SPVAR_7, xbm);
+            set_pvar(SPVAR_8, adm);
+            set_pvar(SPVAR_9, enableY);
+            set_pvar(SPVAR_10, enableX);
+            set_pvar(SPVAR_11, AccZhold);
+            set_val(TRACE_3, 99);
+            combo_run(Rumble1);
+}
+function defaultinvert(mode) {
+// Stick to Sixaxis
+	if(mode == 0) {
+	    invX = -1
+	    invY = 1
+    }
+// Sixaxis to Stick
+    if(mode == 1) {
+    	invX = -1
+	//PS4 Sixaxis uses Inverted Y compared to sticks; PS3 / Wii does not.
+    	if(get_controller() == 4) {
+    		invY = -1
+		} else {
+	    	invY = 1
+		}
+	//Touchpad / Wii IR setup:
+		//Wii IR X uses inverted compared to sticks, Touchpad does not.
+		if(ControlAxisX == 28) {
+			if(get_controller() == 3) {
+	    		invX = -1
+			} else {
+		    	invX = 1
+			}
+			invY = 1
+		}
+	}
+}
+
+function switchSticktoX(mode) {
+//PS3/PS4 (motion enabled) host mode
+	if(mode == 0) {
+	    ControlAxisY = 12
+	    ControlAxisX = 11
+	    HostAxisY = PS4_ACCY
+	    HostAxisX = PS4_ACCX
+	    divY = 3
+	    divX = 3
+		AccZhold = 0
+		defaultinvert(0)
+	}
+//Xbox (non-motion) host mode
+	if(mode == 1) {
+	    ControlAxisY = PS4_ACCY
+	    ControlAxisX = PS4_ACCX
+	    HostAxisY = 12
+	    HostAxisX = 11
+	    divY = 5
+	    divX = 5
+		AccZhold = 0
+		defaultinvert(1)
+	    combo_run(Rumble1);
+	}
+}
+//Notes:
+/*
+Y Up/Down
+X Left/Right Axis +/- Listings.
+
+Sticks:
+	Y: -/+
+	X: -/+
+
+PS3
+SixAxis:
+	Y: -/+
+	X: +/-
+
+PS4
+SixAxis:
+	Y: +/-
+	X: +/-
+Touchpad:
+	Y: -/+
+	X: -/+
+
+Wii
+Motion or IR:
+	Y: -/+
+	X: +/-
+*/

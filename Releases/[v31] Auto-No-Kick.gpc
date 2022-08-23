@@ -1,0 +1,825 @@
+/*
+    _         _              _   _             _  ___      _    
+   / \  _   _| |_ ___       | \ | | ___       | |/ (_) ___| | __
+  / _ \| | | | __/ _ \ _____|  \| |/ _ \ _____| ' /| |/ __| |/ /
+ / ___ \ |_| | || (_) |_____| |\  | (_) |_____| . \| | (__|   < 
+/_/   \_\__,_|\__\___/      |_| \_|\___/      |_|\_\_|\___|_|\_\
+                        									//v. 3.1 - 12/29/2021
+
+// Author: CypherNova139		----		Console: All		----		Controller: All		----		Script Usage: Anti-Idle / Task Automation
+
+ Need to grind items and/or you need to idle in an online multiplayer session - whether going afk unexpectedly, or using a 2nd system to idle in a boosting match just to fill lobby?
+
+ If or when your controller is left idle, Auto-No-Kick automatically activates, performing various actions to help protect against game anti-idle features.
+ Auto-No-Kick automatically deactivates once the controller is back in use, and will automatically reactivate when the controller is left idle once more.
+
+ This allows you to avoid the dreaded multiplayer inactivity timeout while having to perform another task,
+  or perform tedious item or XP grinds where you periodically need to press the same button over and over again without your intervention.
+
+ By default, Auto-No-Kick will automatically press the X button (A button on Xbox/Wii controllers) every 16 seconds, if the Left Stick is not being moved Up or Down.
+
+
+ //-------------------------------\\
+              Features
+ \\-------------------------------//
+ Automatically activates set Anti-Idle Actions by determining if the controller is left idle.
+ If both axises set to listen for (default: Left stick) are below the deadzone the controller is "Idle" and Auto-No-Kick automatically activates.
+ 
+ If the controller is in use the Anti-Idle Actions are deactivated (Deactivates when an axis is above deadzone) until the controller is left idle.
+
+ Actions While controller is "Idle":
+ - Presses Up To Two buttons of your choice every 1-31 seconds.
+ - Adjustable time taken between automated button presses (between 1-31 seconds).
+ - Hold Up To Two Buttons down when idle. [**2nd button added in 3.1]
+ - Hold a button down for a timed interval when idle.
+ - Hold Up To Two axises in a pre-configured direction when idle.
+ - Have your character take a step forward, backward, then left, right every few cycle iterations.
+
+ Other Script Features:
+ - User Configuration while In-Game: Hold Select to access.
+ - Presets for use in Selected Games. Hold Select+L2 and press the associated preset button to activate.
+ - (Optional) Blocks vibration/rumble commands.
+ - (Optional) LEDs notify you on Auto-No-Kick's current status.
+ - (Optional) Use Sixaxis X axis to detect if controller is in use (Hold controller sideways = In Use)
+ - (Optional) Use Touchpad X axis to detect if controller is in use (Press touchpad near edges = In Use, Press in center = Idle)
+ - (Optional) Disable script temporarily, for reasons?
+ - (Optional) Adjust strength of held down button(s). [**NEW for 3.1]
+
+**+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+**
+ *** To configure these script features for your use, see the "Defaults" below to enable, disable, and adjust any feature. ***
+ *** Certain features are also re-configurable in-game by holding Select and pressing a button listed in "Controls" below. ***
+**+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+**
+
+-------------------------------\\
+ --- Games tested:
+ Call of Duty: Black Ops 4 (1.25): (Using auto-press /\ & L3, Step mode on (4), wait time 9 seconds) Avoid multiplayer inactivity timeout.
+        The Last of Us Remastered: (Using auto-press X): Avoid multiplayer inactivity timeout.
+                Tom Clancy's HAWX: (Using hold R1 for a Timed Interval 16 seconds): Automated flying in a holding pattern.
+                  Jetpack Joyride: (Using auto-press X, wait time 250ms) Automated coin grinding with "Beat the House" gadget combo equipped. (Token Gift + Lucky Last)
+               Tomb Raider (2013): (Using auto-press X or Start) Avoid multiplayer inactivity timeout.
+                                   (Using auto-press Start) Automated [very slow] XP grinding in private 5 minute Free for All match.
+-------------------------------//
+-------------------------------\\
+ --- Games previously tested, not supported:
+                   Cyberpunk 2077: (Using auto-press X and turbo timing [Select + hold Down]) Automated duplication glitch 
+                                   [*Older patch verion only: works up to patch 1.11]
+     Uncharted 2/3/The Last of Us: (Using auto-press X): Avoid multiplayer inactivity timeout.
+                                   (NOTE: Servers closed in September 2019)
+           Motorstorm: Apocalypse: (Using auto-press Square and X, hold R2, wait 1.5 seconds) Automated XP grinding in multiplayer private elimination match. 
+                                   (NOTE: Servers closed in August 2018)
+                    Rocket League: (Using auto-press X and hold R2) Use for offline item grinding for the trophies related to the platinum.
+                                   [*Older pre-DLC patch versions only* Newer patches that feature random starting spawns not tested/supported.]
+-------------------------------//
+
+
+ //-------------------------------\\
+              Controls
+ \\-------------------------------//
+ 
+ While playing:
+ Left stick Y axis (default): Axises to listen for controller usage. 
+ Left stick X axis (default)     If both axises are below the deadzone the controller is "Idle" and Auto-No-Kick automatically activates. Deactivates when an axis is above deadzone.
+
+  While holding Select:
+  Configure Script Options in-game!
+  
+  // --- Misc Script Options --- \\
+  
+                      R3/RS = Temporarily disable and/or re-enable Auto-No-Kick's anti-idle actions. (A rumble confirms option enabled)
+     R3/RS + Right stick Up = Enable/Disable rumble. (A rumble confirms option enabled. Ironic.)
+   R3/RS + Right stick Down = Enable/Disable LED notifications. (A rumble confirms option enabled)
+   
+                      L3/LS = Use the Left stick Y and X axises as the axises to listen for controller usage.
+        L3 + Sixaxis X axis = Use the Sixaxis X axis as the axis to listen for controller usage. (A rumble confirms Sixaxis enabled)
+        L3 + touch Touchpad = Use the Touchpad X axis as the axis to listen for controller usage.
+  
+  // --- In-Game Configurations --- \\
+  
+  * Button Presses *
+            D-Pad Up = Add 1 second to the wait time before a button is pressed.
+                    ***Hold Up: "Turbo mode" Sets waitTime to 200ms. (A rumble confirms option enabled)
+          D-Pad Down = Remove 1 second from the wait time before a button is pressed.
+                    ***Hold Down: Rapid-Fire turbo mode: "Turbo mode" Sets waitTime to 20ms, restTime to 25ms. (A rumble confirms option enabled)
+          Circle / B = Enable/Disable a second button to press. (A rumble confirms option enabled)
+          Square / X = Select a button/axis identifier for later binding to a button/axis press or hold. Repeatedly press Square to iterate through the list.
+                          ****Identifier list at https://cronusmax.com/manual/identifiers.htm
+               X / A = Use this button as the first button to press.
+               Start = Use this button as the first button to press.
+               L1/LB = Save the current Button Identifier selected with Square as Button #1 to press.
+               R1/RB = Save the current Button Identifier selected with Square as Button #2 to press.
+    
+   * Buttons and Axis Holds *
+              Triangle / Y = Cycle through Hold down a button modes: Disable / Hold down 1 button / Hold down 2 buttons / Hold down 1 button after the Wait Time and ONLY for a defined amount of time. (A rumble confirms option enabled)
+                   R2 / RT = Enable / Use 1 stick / Use 2 Sticks for holding an axis at specific direction.
+   L1/LB **Hold 1 second** = Save the current Axis Identifier selected with Square as Axis #1 to hold. (A rumble confirms save successful)
+   R1/RB **Hold 1 second** = Save the current Axis Identifier selected with Square as Axis #2 to hold. (A rumble confirms save successful)
+
+   * Other Misc Actions *
+                  L2 = Hold to access Presets.
+          D-Pad Left = Enable/Disable "Step" mode - takes a step forward, backwards, side to side with left stick every few anti-idle iterations.
+
+  // --- Presets --- \\
+  
+  **While holding Select and L2/LT:***
+  Choose a preset mode based for use in selected games:
+          Triangle/Y: Rocket League [Press X/A / Hold R2/RT / Wait Time 16 seconds]
+            Circle/B: Call of Duty: Black Ops 4 [Press L3/LS and Triangle/Y / Step Movement (wait 4 iterations) / Wait Time 9 seconds]
+                 X/A: The Last of Us: Remastered [Press X / Wait Time 16 seconds] (Also worked for Uncharted 2/3) 
+            Square/X: *Borderlands: The Pre-Sequel [Press R3 / Wait Time .210 seconds]
+            				  * Used for level boosting on the guardians mission.
+ Options/Start/Guide: Jetpack Joyride [Press X/A / Wait Time .25 seconds] (Coin Grinding)
+                              * Hold Select + Down to set a more rapid-fire turbo mode - used for Cyberpunk 2077 <=1.11 duplication glitch.
+                  R1: Tom Clancy's HAWX [Press X/A / Hold R1/RB for Timed interval of 16 seconds / Wait Time 9 seconds]
+         D-Pad Right: *Motorstorm: Apocalypse [Press X and Square / Hold R2 / Wait Time 1.5 seconds]
+                              * Meant for online XP Grinding, however servers have closed. This preset kept in case it is found useful in another game.
+          D-Pad Down: Tomb Raider (2013) [Press Start / Wait Time 16 seconds] (A slow but totally idle XP grinding method via solo FFA match)
+          D-Pad Left: *Quantum Theory [Hold RY Down / Wait Time - seconds]
+                              * Used on losing teams to stay in spawn area
+          
+    **Discontinued presets can be found in the comments at the end of the script**  
+            Motorstorm: Apocalypse [Press X and Square / Hold R2 / Wait Time 1.5 seconds]
+                * Meant for online XP Grinding, however servers have closed. This preset kept in case it is found useful in another game.
+            Need For Speed: Undercover [Press Square / Wait Time 5 seconds]
+                * Used to vote to "Race Now" in lobby online lobby, however servers have closed. This preset kept in case it is found useful in another game.
+
+
+
+-------------------------------\\         
+       Extra Information:
+       
+ --- TRACE monitors: (0 = no, 1 = yes)
+ TRACE_1: Auto idle activated 
+ TRACE_2: (1st digit) Second button press enabled (2nd digit) Rumble enabled (3rd digit) Hold Button mode (1 = Enabled. 3 = Hold for Timed interval)
+ TRACE_3: (1st digit) Step movement feature enabled (2nd digit) Hold Axis mode (1 = 1 axis, 2 = 2 axises) (3rd digit) LED notifications enabled
+ TRACE_4: #0-29: Current Button Identifier ready to bind. / #40 and up: Last Preset Selected
+ TRACE_5: Which button as the first button to auto-press. # = identifier. 
+ TRACE_6: Current wait time divided by 1000
+
+
+ LED Status Notification: (When Enabled)
+                   Default system LED display : Controller in use, Auto-No-Kick inactive until controller idle once more.
+                 (DS4) Yellow | Off (Non-DS4) : Controller Idle, Auto-No-Kick active.
+                                Sky Blue | On : Controller Idle, Auto-No-Kick active; Either 1) Hold Axis is enabled and currently active, or 2) Hold Button for a Timed Interval is currently active.
+                            Pink | Fast Blink : Controller Idle, Auto-No-Kick active; The Step Movement feature is currently active.
+                           Green | Slow Blink : Controller Idle, Auto-No-Kick active; Button Presses are currently active.
+ Periodic Red, Off Blinking | Fast Blink, Off : Auto-No-Kick actions have been DISABLED.
+-------------------------------//
+
+
+-------------------------------\\ 
+     Older Script Versions:
+ v3.0: Coolest script link number!!! Added Step mode, Hold Axis, Timed Hold Button, LED status notifications, presets, and other various updates.
+        https://cronusmax.com/gpclib/?s=9876
+ v2.6: Simpler feature set: No LEDs, Axis hold, Timed Button Hold, Step movement, Temporary Script Disable, or various Presets.
+        https://cronusmax.com/gpclib/?s=5826
+ v0.9: Beta version, Presses 1 button only. Only useful for Uncharted 2/3/TLoU. All values hardcoded.
+        https://cronusmax.com/gpclib/?s=1615
+-------------------------------//
+*/
+
+
+//------------
+// LED Color Defaults
+//------------
+
+// Idle Color / Off (Non-DS4) (0)
+define Yellow = 0;
+//Hold Axis ON color / On (1)
+define SkyBlue = 1;
+// Step Movement Active & Currently Running color / Fast (2)
+define Pink = 2;
+// Button Press Currently Running color / Slow (3)
+define Green = 3;
+//Misc available colors
+define White = 4;
+define Red = 5;
+define Off = 6;
+
+data (
+0,2,2,0, // Yellow
+2,0,2,0, // SkyBlue
+0,0,0,2, // Pink
+0,0,2,0, // Green
+2,2,2,2, // White
+0,2,0,0, // Red
+0,0,0,0  // Off
+);
+
+int activationAxisY, activationAxisX, enable = 1, Button1, Button2, useButton2, useHoldButton, holdButton1, holdButton2, holdBTime, useHoldAxis, holdAxis1, holdAxis2, i, i2, useStep, moveCounter, stepWait, rumble, activationAxis_DZ, waitTime, holdTime, restTime, led, pNum = 0, strengthB, buttonSelect;
+
+init {
+//-------------------------------\\
+//   Default Settings
+//-------------------------------//
+//Use TRUE or 1 to enable, FALSE or 0 to disable
+
+// ------\================================
+//  [I]   \   Basic Functions
+// --------\==============================
+
+//Default axises to listen to. If this axis goes into its deadzone the script activates Auto-No-Kick.
+	activationAxisY = PS4_LY
+	activationAxisX = PS4_LX
+//How long to wait *in milliseconds* before Auto-No-Kick performs it's anti-idle actions?	
+	waitTime = 16000
+//Enable controller rumble commands sent from the console?
+	rumble = FALSE
+//Enable LED status notifications?
+	led = TRUE
+
+// ------\================================
+//  [II]  \   Button Configuration
+// --------\==============================
+
+//Which button should be auto-pressed by default?
+	Button1 = PS4_CROSS
+//Use a second button press?
+	useButton2 = FALSE
+//Which button as the 2nd button to press (default)?
+	Button2 = PS4_R1
+//(Optional) How long *in milliseconds* to hold down and then release the auto-press buttons?
+	holdTime = 220
+	restTime = 200
+	
+	
+//Hold a button down?
+// TRUE or 1 = Enable, 2 = Hold 2 buttons down, 3 = ONLY hold the button down after the Wait Time and ONLY for a defined amount of time.
+	useHoldButton = 0
+//Button 1: Select a Button to hold down
+	holdButton1 = PS4_R1
+//Button 2: Select a secondary Button to hold down
+	holdButton2 = PS4_L2
+//Timed Mode: If a button is to be held down for only a specific timing, how long to hold it down *in milliseconds*?
+	holdBTime = 16190
+//How hard to press the button(s) down? (1-100)
+	strengthB = 100
+
+// ------\================================
+//  [III] \   Axis Configuration
+// --------\==============================
+
+//Holding Axis "rubberbanded" style
+	//0 = Don't hold an axis, 1 = Hold 1 axis, 2 = Hold 2 axises
+	useHoldAxis = FALSE
+	//Axis 1: Select an Axis and Direction
+	holdAxis1 = PS4_RX
+	//Direction: 1 for Positive axis value, -1 for Negative axis value. i.e. 1 with Left Stick X will push Left Stick to the Right as LX +100 is to the right.
+	i = -1
+	//Axis 2: Select an Axis and Direction
+	holdAxis2 = PS4_LX
+	//Direction
+	i2 = 1
+
+//Step (Walk a step forward, step backward, step left, step right)
+	//Enable Step mode
+	useStep = FALSE
+	//How many button iterations to wait before initiating Step move
+	stepWait = 4
+
+// ------\================================
+//  [IV]  \   Hardware Configuration
+// --------\==============================
+
+// If your controller does not recenter perfectly, adjust this to a higher two-digit number
+// to adjust how much movement is needed on the "activationAxis" axis before Auto-No-Kick deactivates.
+
+// 25 = The stick must be moved a quarter of the way forward to deactivate Auto-No-Kick, 50 = halfway, etc.
+	activationAxis_DZ = 15
+
+//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//END Defaults.
+//There is no more customizations to change further on.
+//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+	
+/*	set_val(TRACE_2, useButton2 * 100 + rumble * 10 + useHoldButton);
+	set_val(TRACE_3, useStep * 100 + useHoldAxis * 10 + led);*/
+	getPlayerNumber(0);
+}
+
+main {
+//-------------------------------
+// Configure Button: Send press to console, or configure script settings? 
+//-------------------------------
+    // Configuration Button was Pressed.
+    if(event_release(1) && get_ptime(1) < 200) {
+        combo_run(createSelectPress);
+    } 
+    // Configuration Button was Held, Activate User Configuration Mode
+    if(get_val(1) && get_ptime(1) > 200) { 
+        combo_run(configure);
+    }
+    // Block Activation Button Output. If button was pressed, then the press is recreated.
+    if(get_val(1)) {set_val(1,0);}
+
+//-------------------------------
+// Controller Idle / In Use Detection and Actions.
+//-------------------------------
+    if(abs(get_val(activationAxisY)) > activationAxis_DZ || abs(get_val(activationAxisX)) > activationAxis_DZ) {
+    //In Use
+        combo_stop(performAction);
+        reset_leds();
+        set_val(TRACE_1, 0);    
+    } else {
+    //Idle
+    	if(enable) {
+	        combo_run(performAction)
+	        if(!combo_running(configure)) {
+	            if(useHoldButton == 1 || useHoldButton == 2){
+	            	set_val(holdButton1, strengthB);
+            	}
+            	if(useHoldButton == 2) {
+            		set_val(holdButton2, strengthB);
+        		}
+	        }
+	        if(!combo_running(StepMove)) {
+		        if(useHoldAxis) {set_val(holdAxis1, 100 * i)} 
+		        if(useHoldAxis >= 2) {set_val(holdAxis2, 100 * i2)}
+	        }
+	    } else {
+			combo_run(disabledLed);
+		}   
+    }  
+//Misc Actions
+    if(rumble == 0) { block_rumble();} 
+}
+
+//-------------------------------
+// Actions Preparation and Performance
+//-------------------------------
+combo performAction {
+	if(moveCounter >= stepWait && useStep) {
+    	activeLed(Pink);
+    	set_val(TRACE_1, 10);
+    	combo_stop(performAction);
+    } else if(useHoldAxis || (useHoldButton == 3 && combo_running(HoldButtonTimed))) { 
+    	activeLed(SkyBlue);
+    } else { 
+    	activeLed(Yellow);
+    }
+    set_val(TRACE_1, 1)
+    wait(waitTime);
+    if(moveCounter >= stepWait && useStep) {
+    	activeLed(Pink);
+    } else { 
+    	activeLed(Green);
+    }
+    set_val(Button1, strengthB);
+    if(useButton2) { 
+       set_val(Button2, strengthB);
+    }
+    if(useHoldButton == 3) {combo_run(HoldButtonTimed)}
+    wait(holdTime);
+    set_val(Button1, 0);
+    if(useButton2) { 
+       set_val(Button2, 0);
+    }
+    wait(restTime);
+    moveCounter = moveCounter + 1
+    if(moveCounter >= stepWait && useStep) {combo_run(StepMove)}
+}
+
+//-------------------------------
+// In-Game User Configuration
+//-------------------------------
+combo configure {
+    combo_stop(performAction);
+	set_val(TRACE_5, Button1);
+
+//-------------------------------
+// Select: Presets or Options
+//-------------------------------
+	if(get_val(PS3_L2)){
+//------------------------ Presets
+		    // /\ / Y: Rocket League / General drive forward in a racing game
+	    if(event_press(17)) {
+	    	presetSetDefault();
+	        Button1 = PS4_CROSS
+			useHoldButton = 1
+			holdButton1 = PS4_R2
+	        set_val(TRACE_4, 41);
+	    }
+			// () / B: CoD BO4, Anti-AFK idler
+	    if(event_press(18)) {
+	    	presetSetDefault();
+	        Button1 = PS4_TRIANGLE
+			useButton2 = 1
+			Button2 = PS4_L3
+			useStep = 1
+			stepWait = 4
+			waitTime = 9000
+	        set_val(TRACE_4, 42);
+	    }
+		    // X / A: Uncharted 2/3/TLoU Taunt - Anti-AFK
+	    if(event_press(19)) {
+	   		presetSetDefault();
+	        Button1 = PS4_CROSS
+	        set_val(TRACE_4, 43);
+	    }
+			// [] / X: Borderlands: The Pre-Sequel, guardian mission for XP grind
+	    if(event_press(20)) {
+	    	presetSetDefault();
+	        Button1 = PS3_R3
+			waitTime = 210
+	        set_val(TRACE_4, 44);
+	    }
+		    //R1 / RB: HAWX fly in circles
+	    if(event_press(3)) {
+	    	presetSetDefault();
+	        Button1 = PS3_CROSS
+			useHoldButton = 3
+			holdButton1 = PS3_R1
+			holdBTime = 16190
+			waitTime = 9000
+	        set_val(TRACE_4, 45);
+	    }
+			// Options / Start / Guide: Jetpack Joyride Coin Grinding (turbo X press)
+	    if(event_press(2)) {
+	    	presetSetDefault();
+	        Button1 = PS3_CROSS
+			waitTime = 250
+        	set_val(TRACE_4, 46);
+	    }
+/*	       // D-Pad Right: Motorstorm: Apocalypse - Eliminator XP Grinding **Servers Closed, kept in case it is found useful in another game**
+	// How to use script in MSA:
+	// Use this script on the CronusMAX set as your main controller, player 1. You will also need a 2nd controller idle as player 2, no cronusmax needed for P2.
+	// Go to custom game, start an eliminator event, perks off, bets on, both elimination settings to 5. Start the match, Game and script will do the rest of leveling up.
+	    if(event_press(16)) {
+	    	presetSetDefault();
+	        Button1 = PS3_CROSS
+			useButton2 = 1
+			Button2 = PS3_SQUARE
+			useHoldButton = 1
+			holdButton1 = PS3_R2
+			waitTime = 1500
+	        set_val(TRACE_4, 47);
+        } */
+            // D-Pad Down: Tomb Raider (2013) MP XP grind
+   	// How to use script in TR 2013:
+	// Use this script on the CronusMAX set as your main controller, player 1.
+	// Go to private match, Free For All game mode. Set match time to 5 minutes. Start the match, Game and script will do the rest of leveling up. (Gains 3000XP every 5 minutes, very slow method but done completely idle.)
+	    if(event_press(14)) {
+	    	presetSetDefault();
+		    Button1 = PS3_START
+			waitTime = 15000
+		    set_val(TRACE_4, 48);
+	    }
+            // D-Pad Left: Quantum Theory MP XP grind "Immortal"
+   	// How to use script in QT:
+	// Use this script on the CronusMAX set as a player on losing team, player 1.
+	// Boosting method: https://www.trueachievements.com/viewcomment.aspx?commentid=451309#sc451309 (walking losing character backwards helps winning team get peopel into proper positions)
+	    if(event_press(15)) {
+	    	presetSetDefault();
+		    Button1 = 40
+	    	useHoldAxis = 1
+			holdAxis1 = PS3_LY
+			i = 1
+		    set_val(TRACE_4, 48);
+	    }
+	 
+	} else {
+//------------------------ Options
+	//L3: Axis setup.
+	    if(get_val(8)) {
+	//Axis to listen to for idle detection. When this axis is in deadzone Auto-No-Kick activates.
+	//Defaults to using the Left stick, if Sixaxis X is being used (controller held sideways) then that axis will be listened to instead, if touchpad is being pressed then the X axis of touchpad will be used instead.
+	        activationAxisX = 11
+	        activationAxisY = 12
+	        if(ps4_touchpad(PS4T_P1)) {
+	        	activationAxisX = 28
+	    	}
+			if(abs(get_val(PS4_ACCX)) > 18) {
+	            activationAxisX = PS4_ACCX
+	            combo_run(Rumble11);
+	        }
+		}
+	//R3: Enable/Disable misc. script actions
+	    if(event_press(5)) {
+	    //Up: Enable/disable Rumble block
+	        if(get_val(10) < -80) {
+	    		rumble = !rumble;
+	        	if(rumble) {combo_run(Rumble1); reset_rumble();}
+	    	} else if(get_val(10) > 80) {
+		//Down : Enable/disable LED status
+		        led = !led;
+			    if(led) {
+			    	combo_run(Rumble1);
+			    } else {
+			    	reset_leds();
+				}
+			} else {
+	    //R3 Press: Enable/disable script Actions
+		        enable = !enable;
+		        if(enable) {
+		        	combo_run(Rumble1);
+		        } else {
+		        	reset_leds();
+		    	}
+	    	}
+		}
+
+// --- In-Game Configurations
+
+	//Hold Button: Disable / Use 1 / Use 2 / Use 1 [Timed]
+	    if(event_press(17)) {
+			if(useHoldButton < 3) {
+	    		useHoldButton = useHoldButton + 1;
+	    		combo_run(Rumble1);
+			} else {
+				useHoldButton = 0;
+			}
+	    } 
+	//Enable/disable 2nd button to press
+	    if(event_press(18)) {
+	        useButton2 = !useButton2;
+	        if(useButton2) { combo_run(Rumble11);}
+	    }
+ 
+	//Button press Wait time adjustment
+	// Hold to obtain turbo times
+	    if(get_val(13) && get_ptime(13) > 500) {
+		//up: moderate turbo
+			restTime = 200
+			waitTime = 250
+//			set_val(TRACE_4, 55);
+			combo_run(Rumble1);
+		} else if(event_release(13) && get_ptime(13) < 500){
+		//normal mode: increment 1 second
+	    	if(waitTime >= 31000) {
+	    		waitTime = 31000
+	    		} else {
+				waitTime = waitTime + 1000
+//				set_val(TRACE_4, 51);
+			}
+		}
+		if(get_val(14) && get_ptime(14) > 500) {
+		//Down: turbooooooo
+			restTime = 20
+			waitTime = 25
+//			set_val(TRACE_4, 53);
+			combo_run(Rumble1);		
+		} else if(event_release(14) && get_ptime(14) < 500) {
+		//normal mode: decrement 1 second
+			waitTime = waitTime - 1000
+			if(waitTime < 1000) {waitTime = 1000}
+//			set_val(TRACE_4, 52);
+		}
+		
+	//Enable/disable Step mode
+	    if(event_press(15)) {
+	        useStep = !useStep;
+	        if(useStep) {combo_run(Rumble1);}
+	    } 
+
+	//Hold Axis: Disable / Use 1 / Use 2
+	    if(event_press(4)) {
+			if(useHoldAxis < 2) {
+	    		useHoldAxis = useHoldAxis + 1;
+	    		combo_run(Rumble1);
+			} else {
+				useHoldAxis = 0;
+			}
+		}
+
+    //Button Press Selection:
+	  		//Select a button/axis
+	    if(event_press(20)) {
+		    if(buttonSelect < 29) {
+				buttonSelect = buttonSelect + 1;
+				combo_run(Rumble1);
+			} else {
+				buttonSelect = 0;
+			}
+			set_val(TRACE_4, buttonSelect);	
+	    } 
+	  	//Save selection as Axis #1
+	    if(get_val(6) && get_ptime(6) > 500) {
+			holdAxis1 = buttonSelect;
+			combo_run(Rumble1);
+		//Save selection as Button #1
+	    } else if(event_release(6) && get_ptime(6) < 500) {
+	        Button1 = buttonSelect;	        
+	    }  
+    	//Save selection as Axis #2
+	    if(get_val(3) && get_ptime(3) > 500) {
+			holdAxis2 = buttonSelect;
+			combo_run(Rumble1);
+		//Save selection as Button #2
+	    } else if(event_release(3) && get_ptime(3) < 500) {
+	        Button2 = buttonSelect;	        
+	    } 
+    	//Setup to use X button
+	    if(event_press(19)) {
+	        Button1 = 19;
+	    } 
+    	//Setup to use Start button
+	    if(event_press(2)) {
+	        Button1 = 2;
+	    }       
+    }
+    
+    set_val(2, 0);
+    set_val(3, 0);
+    set_val(4, 0);
+    set_val(5, 0);
+    set_val(6, 0);
+    set_val(7, 0);
+    set_val(8, 0);
+	set_val(13, 0);
+	set_val(14, 0);
+	set_val(15, 0);
+	set_val(16, 0);
+    set_val(0, 0);
+    set_val(17, 0);
+    set_val(18, 0);
+    set_val(19, 0);
+    set_val(20, 0);
+    
+	set_val(TRACE_2, useButton2 * 100 + rumble * 10 + useHoldButton);
+	set_val(TRACE_3, useStep * 100 + useHoldAxis * 10 + led);
+	set_val(TRACE_6, waitTime / 1000);
+} 
+
+combo createSelectPress {
+    set_val(1, 100);
+    wait(get_ptime(1));
+    set_val(1, 0);
+}  
+
+combo Rumble1 { 
+    // 1 short rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo Rumble11 { 
+    // 1 short rumble, 1 long rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+    wait(250);
+    set_rumble(RUMBLE_B, 100);
+    wait(400);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo disabledLed {
+	set_val(TRACE_1, 2);
+	reset_leds();
+	wait(10);
+	wait(waitTime);
+	activeLed(Red);
+	wait(75);
+	activeLed(Off);
+	wait(75);
+	activeLed(Red);
+	wait(150);
+	activeLed(Off);
+	wait(150);
+}
+
+combo HoldButtonTimed {
+	set_val(holdButton1, 100);
+	wait(holdBTime);
+	set_val(holdButton1, 0);
+}
+
+combo StepMove {
+	set_val(12, -38);
+	wait(20);
+	set_val(12, -52);
+	wait(10);
+	set_val(12, -67);
+	wait(10);
+	set_val(12, -81);
+	wait(10);
+	set_val(12, -100);
+	wait(220);
+	set_val(12, -93);
+	wait(20);
+	set_val(12, -60);
+	wait(10);
+	set_val(12, -30);
+	wait(10);
+	set_val(12, 0);
+	wait(530);
+	set_val(12, 25);
+	wait(10);
+	set_val(12, 60);
+	wait(10);
+	set_val(12, 87);
+	wait(10);
+	set_val(12, 100);
+	wait(230);
+	set_val(12, 83);
+	wait(10);
+	set_val(12, 60);
+	wait(10);
+	set_val(12, 40);
+	wait(10);
+	set_val(12, 24);
+	wait(10);
+	set_val(12, 0);
+	wait(510);
+	set_val(11, -23);
+	wait(10);
+	set_val(11, -35);
+	wait(10);
+	set_val(11, -51);
+	wait(10);
+	set_val(11, -70);
+	wait(20);
+	set_val(11, -100);
+	wait(200);
+	set_val(11, -90);
+	wait(20);
+	set_val(11, -50);
+	wait(10);
+	set_val(11, -30);
+	wait(10);
+	set_val(11, 0);
+	wait(480);
+	set_val(11, 28);
+	wait(20);
+	set_val(11, 46);
+	wait(10);
+	set_val(11, 70);
+	wait(10);
+	set_val(11, 100);
+	wait(200);
+	set_val(11, 78);
+	wait(10);
+	set_val(11, 56);
+	wait(20);
+	set_val(11, 0);
+	moveCounter = 0
+}
+
+function activeLed(color) {
+	if(led == 0) {return}
+	if(get_controller() == 4) {
+		set_led(LED_1, dbyte(color * 4));
+		set_led(LED_2, dbyte((color * 4) + 1));
+		set_led(LED_3, dbyte((color * 4) + 2));
+		set_led(LED_4, dbyte((color * 4) + 3));
+	} else {
+		if(color > 3) {color = 2}
+		if(color == 6) {color = 0}
+		set_led(pNum, color);
+	}
+
+}
+
+function getPlayerNumber(i3) {
+    i3 = 0;
+    reset_leds();
+    while(i3 < 4){
+        if(get_led(i3) == 1) pNum = i3;
+        i3++;
+    }
+}
+
+function presetSetDefault() {
+   Button1 = 19
+   Button2 = 0
+   useButton2 = 0
+   useHoldButton = 0
+   useHoldAxis = 0
+   useStep = 0
+   waitTime = 16000
+}
+
+/* Discontinued Presets. These are kept here in case you find the ideas useful in another game.
+	       // D-Pad Right: Motorstorm: Apocalypse - Eliminator XP Grinding **Servers Closed, kept in case it is found useful in another game**
+	// How to use script in MSA:
+	// Use this script on the CronusMAX set as your main controller, player 1. You will also need a 2nd controller idle as player 2, no cronusmax needed for P2.
+	// Go to custom game, start an eliminator event, perks off, bets on, both elimination settings to 5. Start the match, Game and script will do the rest of leveling up.
+	    if(event_press(16)) {
+	    	presetSetDefault();
+	        Button1 = PS3_CROSS
+			useButton2 = 1
+			Button2 = PS3_SQUARE
+			useHoldButton = 1
+			holdButton1 = PS3_R2
+			waitTime = 1500
+	        set_val(TRACE_4, 47);
+        }     
+			// [] / X: NFS Undercover - Spam Race Now (Square / X)
+	    if(event_press(20)) {
+	    	presetSetDefault();
+	        Button1 = PS3_SQUARE
+			waitTime = 5000
+	        set_val(TRACE_4, 44);
+	    }
+            // D-Pad Down: Laser League AFK grinding. [UNTESTED]
+	    if(event_press(14)) {
+	    	presetSetDefault();
+		    b1 = PS3_CROSS
+			b2enable = 1
+			b2 = PS3_R2
+			holdA = 1
+			holdAxis = PS3_RY
+			i = -1
+			waitTime = 250
+		    set_val(TRACE_4, 48);
+	    }
+*/

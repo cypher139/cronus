@@ -1,0 +1,789 @@
+/*
+  ___                                      
+ |_ _|_ ____   _____ _ __ ___ _  ___  _ __  
+  | || '_ \ \ / / _ \ '__/ __| |/ _ \| '_ \ 
+  | || | | \ V /  __/ |  \__ \ | (_) | | | |
+ |___|_| |_|\_/ \___|_|  |___/_|\___/|_| |_|
+                             (_)             //v 2.8 - 1/18/2021
+
+// Author: CypherNova139		----		Console: All		----		Controller: See Below		----		Script Usage: Accessibility
+
+
+ Sometimes my mind doesn't understand the game's camera controls, depending on the type of camera view (1st/3rd person) I'm currently viewing, so I ended up creating this handy script!
+
+ "Inversion" allows you to change to normal or inverted camera controls at any time, without having to use the game's options menus, allowing for quick changes of camera controls to your preference.
+
+ This handy script allows you to change to normal or inverted camera controls at any time, without having to use the game's options menus,
+ allowing for quick changes of camera controls to your liking. Supports any controller!
+
+ With this script you now have the ability to remap the stick directions, and swap other buttons as well!
+
+ //-------------------------------\\
+              Features
+ \\-------------------------------//
+
+ - Invert Both stick Y and X Axises independently. (i.e. leave at normal or change to inverted)
+ - Swap L1/R1 "Bumpers" <-> L2/R2 "Triggers"
+ - Swap Left <-> Right Sticks
+ - Swap Stick <-> Touchpad (*not included in profile settings)
+ - Swap Select/Start to Touchpad Left/Right.
+ - Swap X / [] (A / X) for the Triggers. Useful for older racing games.
+ - Limit Pressure Sensitivity or Axis travel for a specified button or axis. (*not included in profile settings)
+ - Profiles: Switch between 2 different saved script settings while in and without leaving gameplay.
+ - Profile Sets: Choose between different sets of Profiles to load.
+ - Profiles - Customizable Trigger Keys. Toggle betwen Proiles, or activate a specific one.
+                 * Also can require an additional axis check before switching running Profile.
+ - (untested) Use PS Vita Screenshot button combo (Home + Start) to trigger PS4 SHARE menu.
+
+ //-------------------------------\\
+              How To Use
+ \\-------------------------------//
+
+Basics:
+   Use the configuration options in-game by holding Select(PS3) / Share(PS4) / Back(360) / View(XB1) / -(Wii) on your controller and pressing the desired option button. 
+   (Available options detailed in Controls section)
+   Once your options are selected release the Select button.
+
+   Now you're ready to play in-game with your selected inversion and/or button swap settings activated.
+   
+   To save settings that you frequently use to be enabled upon script startup, check the Defaults section below for options to configure.
+
+Advanced:
+   For more advanced usage, try the Profiles feature which allows you to switch between saved inversion settings while still remaining in the game.
+   This is useful for quick inversion changes as needed to sync your mind and controls with recent in-game actions.
+   
+   2 profiles can be saved to the device internal memory, or use other Profile Sets pre-provided.
+   
+   Check the Controls and Defaults sections for more explanations of all available features.
+
+ //-------------------------------\\
+         Controller Support
+ \\-------------------------------//
+
+ Supported:
+ PS3, PS4, XB360, XB1, Wii Remote + Nunchuk
+
+ Supported, but not personally tested:
+ Wii Remote + Pro controller
+ Wii U Pro controller
+ XB1 Elite Controller
+
+ Not Really Supported:
+ Wii Remote (There aren't really any buttons on the Wiimote that this script concentrates on remapping.)
+
+ //-------------------------------\\
+              Controls
+ \\-------------------------------//
+
+    R3 (default): Toggles the current profile in use in the current Profile Set. 
+     X (default): Toggles to Profile #1 in the current Profile Set.
+     B (default): Toggles to Profile #2 in the current Profile Set.
+          (Profiles are used to quickly switch between two different saved inversion settings while in the middle of gameplay.)
+          (Profile Sets are used to change between different Sets of Profiles to have loaded, for use in gameplay with the above trigger keys.)
+   Select (hold): Options menu. LEDs will indicate what axises are inverted. (LED on = Inverted) Also see TRACE_1 and TRACE_2 for controllers with single LEDs.
+
+
+ While holding Select:
+  L1,L2,R1,R2 :   Invert/normalize left or right stick axises. These changes are live and available for use immediately.
+**
+	LED 4 / L1 = LY  (Left Up/Down)
+	LED 3 / L2 = LX  (Left Left/Right)
+	LED 2 / R1 = RY  (Right Up/Down)
+	LED 1 / R2 = RX  (Right Left/Right)
+**
+      L3 / LS :   Save your current settings as Custom Profile #1. (A rumble will indicate success)
+      R3 / RS :   Save your current settings as Custom Profile #2. (A rumble will indicate success)
+        Start :   Switch Profile in use in the current Profile Set. (A rumble or LED will indicate which profile is selected. Changes are live immediately.)
+ Triangle / Y :   Disable or Cycle through the mode in which L1/R1/bumpers and L2/R2/Triggers are swapped. Useful for those with Xbox controllers wishing to use the triggers instead of the bumpers.
+            -----See defaults below for mode descriptions. (A rumble will indicate a sucessful mode change, except for 0/disabled. Changes are live immediately.)
+   Square / X :   Disable or Cycle through the mode in which the Sticks or certain Stick Axises are swapped.
+            -----See defaults below for mode descriptions. (A rumble will indicate a sucessful mode change, except for 0/disabled. Changes are live immediately. Axis inversions are unaffected by swap.)
+    Cross / A :   Enable/Disable Select/Start <-> Touchpad Left/Right press swap. Useful for PS4 games expecting the touchpad on non-DS4 controllers.
+            -----See defaults below for mode descriptions. (A rumble will indicate a sucessful mode change, except for 0/disabled. Changes are live immediately.)
+            -------*Note: Select/Start <-> Touchpad Left/Right press swap is disabled on DS4 controllers as it may adversly affect the Touchpad <-> Stick swap. 
+                          If Cross is pressed when using a DS4 controller this swap will always be turned off, allowing you to fix a previously set profile setting if needed. 2 Rumbles will indicate this condition.
+   Circle / B :   Switch the current Profile *Set* in use.
+            -----See defaults below for Profile Set descriptions. (A rumble will indicate a sucessful Profile Set change, except for Profile Set #1 - user saved settings in device memory. Changes are live immediately.)
+   D-pad Down :   Enable/Disable an additional axis to check is in use when switching profiles. If enabled the configured axis must also be in use to switch profiles when the profile switch key is pressed.
+     D-pad Up :   Enable/Disable Pressure Senstitivity / Axis Limiter. (A rumble will indicate a sucessful mode change, except for 0/disabled.)
+  D-Pad Right :   Select which Button or Axis to Limit. Cycles through all available Buttons and Axises.
+
+ //-------------------------------\\
+        TRACE Notifications
+   (View in Device Monitor while your device is connected to your PC)
+ \\-------------------------------//
+
+ TRACE_1-2: Indicates inversion status of the Left stick. 0 = off, 1 = on. Status updates when you hold Select.
+ TRACE_1:  First Digit: LY axis
+          Second Digit: LX axis.
+ TRACE_2:  First Digit: RY axis
+          Second Digit: RX axis.
+ TRACE_4:  First Digit: Profile Switch Rumble Notification Enabled
+          Second Digit: Profile Switch Axis Check Enabled
+           Third Digit: Current Profile Set Loaded
+ TRACE_5:  First Digit: Status of profiles: 1 or 2 = Current profile you are using, 3 = Profile 1 saved, 4 = Profile 2 saved. 0 or not present = Profile not loaded.
+          Second Digit: Current Trigger Swap mode
+ TRACE_6:  First Digit: Current Stick Swap mode
+          Second Digit: Current Touchpad Swap mode
+*/
+int invLY, invLX, invRY, invRX, psKey, psKeyP1, psKeyP2, psKeyAxis, psCheckAxis, psKeyAxis_DZ, profile, profileSet, triggerSwap, stickSwap, sL1, sL2, sR1, sR2, tL1, tL2, tR1, tR2, touchpadSwap, tp1, rumble, pressure, prKey, prLimit;
+
+init {
+//-------------------------------\\
+//   Default Settings
+//-------------------------------//
+// Change these settings to your liking, i.e. what you need loaded by default when you first activate this script.
+
+
+
+// ------\================================
+//  [I]   \   Inversions
+// --------\==============================
+
+// Which axises should start inverted by default? 
+// 0 or FALSE = Disable, 1 or TRUE = Enable.
+// Y = Up/Down, X = Left/Right
+	invLY = 0
+	invLX = 0
+	invRY = 0
+	invRX = 0
+
+
+// ------\================================
+//  [II]  \   Profiles
+// --------\==============================
+// Profiles are used to quicky switch between a different set of inversion settings while in the middle of gameplay.
+
+//-------------------------------\\
+//  Default Profile Set
+//-------------------------------//
+/* 
+    Profile Sets are used to change between different Sets of Profiles to have loaded.
+    You can load Sets of 2 profiles each to switch between:
+
+- Set #1: "Custom". User Custom Profile Settings Saved to and Loaded from Cronus Internal Memory.
+-----Profile #1: Use Select + L3 to save current settings to this Profile.
+------Profile #2: Use Select + R3 to save current settings to this Profile.
+
+- Set #2: "Inverted". Hardcoded profile set.
+-----Profile #1: Pass-Through.
+------Profile #2: Inverted Right Stick.
+                   
+- Set #3: "Racing". Hardcoded profile set.
+-----Profile #1: Pass-Through
+------Profile #2: Trigger Swap #6 - Swap X / [] (A / X) for the triggers.
+*/
+// What Profile Set would you like to use?
+	profileSet = 1
+
+//-------------------------------\\
+//  Toggle Hotkeys:
+//-------------------------------//
+// When the configured button is pressed, the script will switch 'Profiles'. 
+// Note:   You can disable any unneeded Profile Switch Hotkey by changing the affected HotKey to the number 40. 
+
+
+// Toggle between Profile #1 & #2
+//    It would be useful to map this to your weapon's scope button, or the button to use binoculars;
+//    something that you need to quickly invert the camera controls when you are using this object.
+    psKey = PS3_R3
+    
+// Switch Directly to Profile #1
+//    Hint: Map this to a button that initiates an in-game action that requires specific inversion settings from the rest of the gameplay.
+	psKeyP1 = 40
+
+// Switch Directly to Profile #2
+//    Hint: Map this to a button that initiates an in-game action that requires specific inversion settings from the rest of the gameplay.
+	psKeyP2 = 40
+
+//-------------------------------\\
+//  Profile Switch Axis Check:
+//-------------------------------//
+// If Enabled the configured Axis must also be in use to switch profiles when the Profile Switch Key is pressed.
+//   Hint: This is useful if the button that initiates an in-game action that requires different inversion settings from the rest of the gameplay ... also sometimes initiates other actions that do not require a inversion change.
+	psCheckAxis = FALSE
+	psKeyAxis = PS3_ACCY
+	// Axis Deadzone:
+	psKeyAxis_DZ = 18
+
+//-------------------------------\\
+//  Rumble Confirmation
+//-------------------------------//
+// Enable or Disable Rumble confirmation on a successful Profile Switch?
+	rumble = TRUE
+
+
+// ------\================================
+//  [III] \   Buttons Swaps
+// --------\==============================
+
+//-------------------------------\\
+//  Bumpers & Triggers
+//-------------------------------//
+// Which bumper / trigger swap mode would you like by default?
+// 0 = Unchanged.
+// 1 = Switch Bumper(L1/R1) to Triggers (L2/R2). Common swap for Xbox controllers. i.e. Use Triggers/R2 to fire weapon in games that use R1/Bumpers. 
+// 2 = Swap L1/L2 only (L1/L2 -> L2/L1)
+// 3 = Swap R1/R2 only (R1/R2 -> R2/R1)
+// 4 = Swap Left and Right sides. (L1/L2 -> R1/R2). Might be useful for Wii Remote + Nunchuk.
+// 5 = Swap Left/Right sides and swap Bumpers/Triggers. (L1/L2 -> R2/R1)
+// 6 = Swap X / [] (A / X) for the Triggers. Useful for older racing games.
+    triggerSwap = 0
+
+//-------------------------------\\
+//  Thumbsticks
+//-------------------------------//
+// Which thumbstick swap mode would you like by default?
+// 0 = Unchanged.
+// 1 = Switch axis postions on both sticks. (Left stick Up/Down(LY)/Left stick Left/Right(LX) to LX/LY, also RY/RX to RX/RY.) 
+// 2 = Swap axis on Left Stick only (LY/LX to LX/LY)
+// 3 = Swap axis on Right Stick only (RY/RX -> RX/RY)
+// 4 = Swap Left and Right Sticks. (LY/LX -> RY/RX).
+// 5 = Swap Left/Right Stick and swap axis positions. (LY/LX -> RX/RY)
+// 6 = Swap Left Stick and Touchpad.
+// 7 = Swap Right Stick and Touchpad.
+    stickSwap = 0
+
+//-------------------------------\\
+//  Touchpad to non-DS4
+//-------------------------------//
+// Non-DS4 controllers: Are you playing a PS4 game requiring touchpad clicks on left or right of touchpad? (Examples: PS2-on-PS4 titles)
+// *Do not use this specific feature (leave at 0) with a DS4 controller as it is not needed*
+// 0 = Unchanged.
+// 1 = Swap Select/Start for Touchpad Left/Right press.
+// 2 = Swap Select for Touchpad Left press.
+	touchpadSwap = 0
+	
+	
+//-------------------------------\\
+//  Pressure Sensitivity / Axis Limiter
+//-------------------------------//
+// Limit Pressure Sensitivity or Axis Travel sent to console for a specific button/axis.
+	pressure = 0
+// Limit this Button or Axis:	
+	prKey = PS3_SQUARE
+// Select the Limit of Axis Travel. Axis values sent to console for this axis will only go as high as this number. 
+	prLimit = 50
+	
+	
+//----------------------------------------------
+// There is no need to change anything else!
+
+//Initial script setup:
+//Setup trigger and stick swap, if any.
+	loadTriggerSwap();
+	loadStickSwap();
+	setTrace();
+}
+
+main {
+//Reset leds after customizing script
+    if(get_val(1) != 100) {
+        reset_leds();
+    }
+
+//-------------------------------
+// Configure Button: Send press to console, or configure script settings? 
+//-------------------------------
+    // Configuration Button was Pressed.
+    if(event_release(1) && get_ptime(1) < 200) {
+	//	Touchpad Left swap
+		if(touchpadSwap > 0) {
+			tp1 = -85
+			combo_run(createTouchpadPress);
+		} else {
+			combo_run(createSelectPress);
+		}
+    } 
+    // Configuration Button was Held, Activate User Configuration Mode
+    if(get_val(1) && get_ptime(1) > 200) { 
+        combo_run(configure);
+    }
+    // Block Activation Button Output. If button was pressed, then the press is recreated.
+    if(get_val(1)) {
+		set_val(1, 0);
+    }
+
+//-------------------------------
+// Axis Inversions
+//-------------------------------
+    //LY (Left stick up/down)
+    if(invLY) {set_val(12, inv(get_val(12)));}
+    //LX (Left stick left/right)
+    if(invLX) {set_val(11, inv(get_val(11)));}
+    //RY (Right stick up/down)
+    if(invRY) {set_val(10, inv(get_val(10)));}
+    //RX (Right stick left/right)
+    if(invRX) {set_val(9, inv(get_val(9)));}
+ 
+ 
+	if(!combo_running(configure)) {
+	//-------------------------------
+	// SHARE buttton workaround
+	//-------------------------------
+		if(get_val(2) && get_val(0)) {
+				set_val(PS4_SHARE, 100);
+				set_val(0, 0);
+				set_val(2, 0);
+		}
+
+	//-------------------------------
+	// Swap Start / Touchpad Right
+	//-------------------------------
+	//Touchpad Right / Start swap (Left/Select is handled slightly different, due to Select also being used for this script's customization)
+	    if(event_press(2) && touchpadSwap == 1) {
+			if(get_val(2) != 0) {
+				tp1 = 85
+	    		combo_run(createTouchpadPress);
+	    	}
+	    }
+	    if(touchpadSwap == 1) {
+			set_val(2, 0);
+	    }
+	
+	//-------------------------------
+	// Profile Switch Hotkey: Switches profiles while in gameplay
+	//-------------------------------
+	   if(event_press(psKey) && psKey < 30) {switchprofiles(0);}
+	   if(event_press(psKeyP1) && psKeyP1 < 30) {switchprofiles(1);}
+	   if(event_press(psKeyP2) && psKeyP2 < 30) {switchprofiles(2);}
+	
+	//-------------------------------
+	// Run Trigger Swaps
+	//-------------------------------
+	    if(triggerSwap > 0) {
+	        swap(tL1, tL2);
+	        swap(tR1, tR2);
+	    }
+	
+	//-------------------------------
+	// Run Stick Swaps
+	//-------------------------------
+	    if(stickSwap > 0) {
+	        swap(sL1, sL2);
+	        swap(sR1, sR2);
+	    }
+	    
+	//-------------------------------
+	// Pressure Sensitivity / Axis Limiter
+	//-------------------------------	    
+    	if(pressure) {
+    		if(abs(get_val(prKey)) > prLimit) {
+	      		if(get_val(prKey) < 0) {
+	      		//neg
+	      			set_val(prKey, inv(prLimit))
+      			} else {
+      			//pos
+  					set_val(prKey, prLimit)
+				}
+			}
+		}
+//--------------		
+    }
+}    
+
+combo Rumble1 { 
+    // 1 short rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo Rumble11 { 
+    // 1 short rumble, 1 long rumble
+	call(Rumble1);
+    wait(250);
+    set_rumble(RUMBLE_B, 100);
+    wait(400);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo Rumble2 { 
+    // 2 short rumbles
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+    wait(200);
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo Rumble22 { 
+    // 2 short rumbles, 1 long rumble
+	call(Rumble2);
+    wait(250);
+    set_rumble(RUMBLE_B, 100);
+    wait(400);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo configure {
+//-------------------------------
+// Press Start to view profile inversion settings.
+//-------------------------------
+    if(event_press(2)) {switchprofiles(3);}
+
+//-------------------------------
+// LED and TRACE notifications: Enabled Inversions
+//-------------------------------
+//4 / L1 = LY 
+//3 / L2 = LX
+//2 / R1 = RY
+//1 / R2 = RX
+    set_led(3, invLY);
+    set_led(2, invLX);
+    set_led(1, invRY);
+    set_led(0, invRX);
+    set_val(TRACE_1, invLY * 10 + invLX);
+    set_val(TRACE_2, invRY * 10 + invRX);
+    
+//-------------------------------
+// Enables/Disable Inversions For Stick Axises
+//-------------------------------
+//Bumpers: Y axis, Triggers: X axis
+    if(event_press(6)) {invLY=!invLY}
+    if(event_press(7)) {invLX=!invLX}
+    if(event_press(3)) {invRY=!invRY}
+    if(event_press(4)) {invRX=!invRX}
+
+
+//-------------------------------
+// Setup: Pressure
+//-------------------------------	
+//Enable pressure sensitivity limit
+    if(event_press(13)) {
+    	pressure=!pressure
+    	if(pressure) {combo_run(Rumble1);}
+    	setTrace();
+	}
+//Cycle through buttons/axis to use
+    if(event_press(16)) {
+        if(abs(prKey) < 29) {
+    		prKey = prKey + 1;
+    		combo_run(Rumble1);
+		} else {
+			prKey = 0;
+		}
+	set_val(TRACE_3, prKey);
+    }
+
+
+//-------------------------------
+// Setup: Profiles
+//-------------------------------	
+//Enable checking an axis
+    if(event_press(14)) {
+    	psCheckAxis=!psCheckAxis
+    	if(psCheckAxis) {combo_run(Rumble1);}
+    	setTrace();
+	}
+//Switch the current Profile Set in use	
+    if(event_press(PS3_CIRCLE)) {
+        if(abs(profileSet) < 3) {
+    		profileSet = profileSet + 1;
+    		combo_run(Rumble1);
+		} else {
+			profileSet = 1;
+		}
+		setTrace();
+    }
+// Profiles: Save current settings to Profile #1 / Profile #2
+    if(event_press(PS3_L3)) {
+        set_val(TRACE_5, 30 + triggerSwap);
+        set_pvar(SPVAR_1, invLY);
+        set_pvar(SPVAR_2, invLX);
+        set_pvar(SPVAR_3, invRY);
+        set_pvar(SPVAR_4, invRX);
+        set_pvar(SPVAR_9, triggerSwap);
+        set_pvar(SPVAR_11, stickSwap);
+        combo_run(Rumble11);
+    }
+    if(event_press(PS3_R3)) {
+        set_val(TRACE_5, 40 + triggerSwap);
+        set_pvar(SPVAR_5, invLY);
+        set_pvar(SPVAR_6, invLX);
+        set_pvar(SPVAR_7, invRY);
+        set_pvar(SPVAR_8, invRX);
+        set_pvar(SPVAR_10, triggerSwap);
+        set_pvar(SPVAR_12, stickSwap);
+        combo_run(Rumble22);
+    }
+//-------------------------------
+// Setup desired Trigger Swaps
+//-------------------------------
+    if(event_press(PS3_TRIANGLE)) {
+		if(triggerSwap < 6) {
+    		triggerSwap = triggerSwap + 1;
+    		combo_run(Rumble1);
+		} else {
+			triggerSwap = 0;
+		}
+        loadTriggerSwap();
+		setTrace();
+    }
+    
+//-------------------------------
+// Setup desired Stick Swaps
+//-------------------------------
+    if(event_press(PS3_SQUARE)) {
+        if(stickSwap < 7) {
+    		stickSwap = stickSwap + 1;
+    		combo_run(Rumble1);
+		} else {
+			stickSwap = 0;
+		}
+        loadStickSwap();
+		setTrace();
+    }
+//-------------------------------
+// Setup: Select / Start to Touchpad Left/Right swap
+//-------------------------------
+// If you are using a DS4 controller the touchpad swap will be disabled.
+    if(event_press(PS3_CROSS)) {
+    	if(get_controller() == PIO_PS4) {
+    		touchpadSwap = 0;
+    		combo_run(Rumble2);
+    	} else {     	   
+	        if(touchpadSwap < 2) {
+	        	touchpadSwap = touchpadSwap + 1;
+	        	combo_run(Rumble1);
+	    	} else {
+	    		touchpadSwap = 0;
+    		}
+		}
+		setTrace();
+	}
+	
+//Disable commands to console while selecting script options
+    set_val(0, 0);
+    set_val(2, 0);
+    set_val(3, 0);
+    set_val(4, 0);
+    set_val(5, 0);
+    set_val(6, 0);
+    set_val(7, 0);
+    set_val(8, 0);
+    set_val(13, 0);
+    set_val(14, 0);
+    set_val(15, 0);
+    set_val(16, 0);
+    set_val(17, 0);
+    set_val(18, 0);
+    set_val(19, 0);
+    set_val(20, 0);
+}
+
+combo createSelectPress {
+//Recreate a Select button press
+	set_val(1, 100);
+	wait(get_ptime(1));
+	set_val(1, 0);
+}
+
+combo createTouchpadPress {
+//Recreate a Touchpad button press, real or not.
+	ps4_set_touchpad(tp1, -3);
+    set_val(PS4_TOUCH, 100);
+    wait(80);
+}
+
+function loadTriggerSwap() {
+    if(triggerSwap == 1) {
+    //Common Xbox controller trigger swap: Invert bumpers/triggers - L2/R2 -> L1/R1
+    //Left side - button pressed
+        tL1 = PS3_L1
+    //Left side - swap to
+        tL2 = PS3_L2
+        tR1 = PS3_R1
+        tR2 = PS3_R2
+    }
+    if(triggerSwap == 2) {
+    //From Mode 1 - Left side only - L1 -> L2
+        tL1 = PS3_L1
+        tL2 = PS3_L2
+        tR1 = PS3_R1
+        tR2 = PS3_R1
+    }
+    if(triggerSwap == 3) {
+    //From Mode 1 - Right side only - R1 -> R2
+        tL1 = PS3_L1
+        tL2 = PS3_L1
+        tR1 = PS3_R1
+        tR2 = PS3_R2
+    }
+    if(triggerSwap == 4) {
+    //Swap left and right. - L1/L2 -> R1/R2
+        tL1 = PS3_L1
+        tL2 = PS3_R1
+        tR1 = PS3_L2
+        tR2 = PS3_R2
+    }
+    if(triggerSwap == 5) {
+    //Swap left and right AND invert triggers/bumpers.
+        tL1 = PS3_L1
+        tL2 = PS3_R2
+        tR1 = PS3_L2
+        tR2 = PS3_R1
+    }
+    if(triggerSwap == 6) {
+    //Older racing games: Swap X/[] for modern triggers
+        tL1 = PS3_CROSS
+        tL2 = PS3_R2
+        tR1 = PS3_SQUARE
+        tR2 = PS3_L2
+    }
+}
+
+function loadStickSwap() {
+    if(stickSwap == 1) {
+    //Switch Axis positions: LY->LX & RY->RX. (Both sticks.)
+    //Left side - button pressed
+        sL1 = PS3_LY
+    //Left side - swap to
+        sL2 = PS3_LX
+        sR1 = PS3_RY
+        sR2 = PS3_RX
+    }
+    if(stickSwap == 2) {
+    //Switch Axis positions: Left stick LY->LX
+        sL1 = PS3_LY
+        sL2 = PS3_LX
+        sR1 = PS3_RY
+        sR2 = PS3_RY
+    }
+    if(stickSwap == 3) {
+    //Switch Axis positions: Right stick RY->RX
+        sL1 = PS3_LY
+        sL2 = PS3_LY
+        sR1 = PS3_RY
+        sR2 = PS3_RX
+    }
+    if(stickSwap == 4) {
+    //Swap Left and Right sticks
+        sL1 = PS3_LY
+        sL2 = PS3_RY
+        sR1 = PS3_LX
+        sR2 = PS3_RX
+    }
+    if(stickSwap == 5) {
+    //Swap sticks AND axis positions. (LY->RX, etc.)
+        sL1 = PS3_LY
+        sL2 = PS3_RX
+        sR1 = PS3_LX
+        sR2 = PS3_RY
+    }
+    if(stickSwap == 6) {
+    //Swap touchpad / Wii IR and Left stick.
+        sL1 = PS4_TOUCHY
+        sL2 = PS3_LY
+        sR1 = PS4_TOUCHX
+        sR2 = PS3_LX
+    }
+    if(stickSwap == 7) {
+    //Swap touchpad / Wii IR and Right stick.
+        sL1 = PS4_TOUCHY
+        sL2 = PS3_RY
+        sR1 = PS4_TOUCHX
+        sR2 = PS3_RX
+    }
+}
+
+function switchprofiles(_m1) {
+// Additional Axis must be pressed check
+	if(psCheckAxis && _m1 != 3) {
+		if(abs(get_val(psKeyAxis)) > psKeyAxis_DZ) {
+		 	sp2(_m1);
+	 	}
+ 	} else {
+ 		sp2(_m1);
+	}
+}
+
+function sp2(_m1) {	
+	if(profileSet == 0) {profileSet = 1}
+//Determine if Profile should be Toggled, or specific Profile.
+	if(_m1 == 0 || _m1 == 3) {profile=!profile;}
+	if(_m1 == 1) {profile = 0;}
+	if(_m1 == 2) {profile = 1;}
+
+//-------------------------------
+//Profile Set #1: Custom Settings
+//-------------------------------
+	if(profileSet == 1) {
+	    if(profile) {
+	        //User Profile #2
+	        invLY = get_pvar(SPVAR_5, 0, 2, 0);
+	        invLX = get_pvar(SPVAR_6, 0, 2, 0);
+	        invRY = get_pvar(SPVAR_7, 0, 2, 0);
+	        invRX = get_pvar(SPVAR_8, 0, 2, 0);
+	        triggerSwap = get_pvar(SPVAR_10, 0, 8, 0);
+	        stickSwap = get_pvar(SPVAR_12, 0, 8, 0);
+	    } else {
+	        //User Profile #1
+	        invLY = get_pvar(SPVAR_1, 0, 2, 0);
+	        invLX = get_pvar(SPVAR_2, 0, 2, 0);
+	        invRY = get_pvar(SPVAR_3, 0, 2, 0);
+	        invRX = get_pvar(SPVAR_4, 0, 2, 0);
+	        triggerSwap = get_pvar(SPVAR_9, 0, 8, 0);
+	        stickSwap = get_pvar(SPVAR_11, 0, 8, 0);
+	    }
+    }
+//-------------------------------
+//Profile Set #2: Default Inversions
+//-------------------------------
+	if(profileSet == 2) {
+		if(profile) {
+		//Defaults Profile # 2
+			invLY = 0
+			invLX = 0
+			invRX = 1
+			invRY = 1
+		} else {
+		//Defaults Profile # 1
+			invLY = 0
+			invLX = 0
+			invRX = 0
+			invRY = 0
+		}
+	}
+//-------------------------------
+//Profile Set #3: Older Racing games
+//-------------------------------
+	if(profileSet == 3) {
+		if(profile) {
+		//Defaults Profile # 2
+			invLY = 0
+			invLX = 0
+			invRX = 0
+			invRY = 0
+			triggerSwap = 6
+		} else {
+		//Defaults Profile # 1
+			invLY = 0
+			invLX = 0
+			invRX = 0
+			invRY = 0
+			triggerSwap = 0
+		}
+	}   
+//Final Setup    
+	loadTriggerSwap();
+	loadStickSwap();
+	setTrace();
+	if(rumble) {
+		if(profile) {
+		    //User Profile #2
+		    combo_run(Rumble2);
+	    } else {
+	        //User Profile #1
+	        combo_run(Rumble1);
+		}	
+	}
+}
+
+function setTrace() {
+	set_val(TRACE_4, rumble * 100 + psCheckAxis * 10 + profileSet)
+	set_val(TRACE_5, (profile + 1) * 10 + triggerSwap);
+    set_val(TRACE_6, stickSwap * 10 + touchpadSwap);
+}

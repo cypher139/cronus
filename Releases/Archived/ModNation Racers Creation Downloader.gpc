@@ -1,0 +1,392 @@
+/*
+    __  ___          ___   __      __  _                ____                           
+   /  |/  /___  ____/ / | / /___ _/ /_(_)___  ____     / __ \____ _________  __________
+  / /|_/ / __ \/ __  /  |/ / __ `/ __/ / __ \/ __ \   / /_/ / __ `/ ___/ _ \/ ___/ ___/
+ / /  / / /_/ / /_/ / /|  / /_/ / /_/ / /_/ / / / /  / _, _/ /_/ / /__/  __/ /  (__  ) 
+/_/  /_/\____/\__,_/_/ |_/\__,_/\__/_/\____/_/ /_/  /_/ |_|\__,_/\___/\___/_/  /____/  
+                                                                                     
+_________                        __  .__                ________                      .__                    .___            
+\_   ___ \_______   ____ _____ _/  |_|__| ____   ____   \______ \   ______  _  ______ |  |   _________     __| _/___________ 
+/    \  \/\_  __ \_/ __ \\__  \\   __\  |/  _ \ /    \   |    |  \ /  _ \ \/ \/ /    \|  |  /  _ \__  \   / __ |/ __ \_  __ \
+\     \____|  | \/\  ___/ / __ \|  | |  (  <_> )   |  \  |    `   (  <_> )     /   |  \  |_(  <_> ) __ \_/ /_/ \  ___/|  | \/
+ \______  /|__|    \___  >____  /__| |__|\____/|___|  / /_______  /\____/ \/\_/|___|  /____/\____(____  /\____ |\___  >__|   
+        \/             \/     \/                    \/          \/                  \/                \/      \/    \/       //v. 1.9 - 9/23/2018
+
+
+
+*/
+// Author: CypherNova139		----		Console: PS3		----		Controller: All		----		Script Usage: Task Automation
+
+
+//Tired of pressing Download over and over and over to download your friends creations in return from them helping you get gobs of Create XP? 
+//This script is here to help, just set the game on your favorite search page, enable the script and walk away while it auto-downloads and views every selection in the download search page you setup the game onto.
+
+//-------------------------------
+// Setup Instructions 
+//-------------------------------
+// 1) Drive to Creation Station, enter.
+// 2) Select Share, select Download
+// 3) Enter the criteria of your download search, such as the newest mods of your friends.
+// 4) Start your download search, leave the cursor on the selection at the TOP LEFT
+// 5) Hold Select and Press R1 (if searching for Mods) or L1 (if searching for Karts or Tracks) to activate what page size is needed.
+// 6) Hold Select and Press Start to activate the script! (a small rumble indicates success)
+// 7) ???
+// 8) Profit!
+// Use Select + Start again to stop the script. To re-enable script you must place cursor back on Top Left corner and press Select + Start! (alternatively press Select + PS to start where previously left off at)
+//-------------------------------
+
+//-------------------------------
+// NOTES
+//-------------------------------
+// A certain small amount of lag time is built into the button press times, but if your internet is being slow to download items you may experience the script getting out of sync with the game.
+// If you experience sync problems with creations taking longer than expected to download, adjust the "DLwait" time in defaults below.
+
+// While script is enabled certain controls are disabled to prevent you accidentally pressing them: Both Left and Right Stick, L1, L2, R2. To use these controls again disable the script (Select + Start)
+//-------------------------------
+
+//-------------------------------
+// Controls
+//-------------------------------
+// *While Holding Select*:
+//       L1 : Use a 4x3 page grid (Download Tracks or Karts) *Note: This preset resets DLwait time to 4.5 seconds*
+//       R1 : Use a 8x3 page grid (Download Mods) *Note: This preset resets DLwait time to 3 seconds*
+// Triangle : Use a 7x7 page grid (Mods download on creator profile screen)
+//    Start : Start/Restart/Disable the script. (a small rumble indicates success) When starting script, cursor must be on top left selection!
+//       PS : Pause script / Start script from where previously last left off at. (a small rumble indicates success) DO NOT initially start with this button, use Start!
+//       Up : Resize grid size: Add another row
+//     Down : Resize grid size: Remove a row
+//     Left : Resize grid size: Remove a columm
+//    Right : Resize grid size: Add another columm
+//
+//
+//-------------------------------
+
+//Debug Stats (TRACE)
+//TRACE_1: Script Enabled (1) / Disabled (0)
+//TRACE_2: Static Count of Total Columms in Row
+//TRACE_3: Current Selected Row (Counting from Top)
+//TRACE_4: Current Columm in Row. Counted from the start of Row: left if heading right in Row, right if heading left in Row.
+//TRACE_5: Total Count of Pages Completed.
+//TRACE_6: debug
+
+// Todo:
+// loadnext -page  change rumble to led blink
+// Load/save custom grid size
+// Add in-game DLwait time adjustment? (l2/r2)
+
+
+int enable = 0, Rows, activeRow, Columms, activeColumm = 0, PagesComplete, DLwait;
+
+init {
+//-------------------------------
+// Defaults
+//-------------------------------
+
+// How many Selections in a Single Row?
+	Columms = 8
+	
+// How many Rows in a Single Search Page?
+	Rows = 3
+
+// How long should the script wait for game to Download Creation *in milliseconds* before continuing??
+// (This may alleviate problems if your internet is being slow to download creations)
+// (Recommendations: 3000 for mods, 4500 for karts, 5000 or more for tracks)
+	DLwait = 3210
+
+
+//END of Defaults.
+//There is no more customizations to change further on.
+//-------------------------------	
+}
+
+main {
+//Debug Stats
+    set_val(TRACE_1, combo_running(Arbitrator))
+	set_val(TRACE_2, Columms)
+    set_val(TRACE_3, activeRow)
+    
+	if(enable == 1) {
+
+	//Debug Stats for enabled script
+		set_val(TRACE_4, activeColumm)
+	    set_val(TRACE_5, PagesComplete)
+	    set_val(TRACE_6, combo_running(runAction))
+
+	//Block non-essential buttons from accidental presses
+		set_val(PS3_LY, 0);
+		set_val(PS3_LX, 0);
+		set_val(PS3_RY, 0);
+		set_val(PS3_RX, 0);
+		set_val(PS3_L1, 0);
+		set_val(PS3_L2, 0);
+		if(!combo_running(loadNextPage)) {set_val(PS3_R2, 0);}
+
+	// Start script action on seleted item in the grtd in-game., Arbitrator works with selection, then moves to next selection. Also does not start action if a reset (next row / next page) in progress.
+		if(!combo_running(loadNextPage)) {
+			combo_run(Arbitrator);
+		}
+//end enable 
+	}
+
+// Select button: Send press to console, or edit script settings? 
+    // press - send to console
+    if(event_release(PS3_SELECT) && get_ptime(PS3_SELECT) < 170) {
+		combo_run(cpress);
+    } 
+    // hold - customize part of script
+    if(get_val(PS3_SELECT) && get_ptime(PS3_SELECT) > 170) { 
+        combo_run(customize);
+    }
+    // Completely block output to console from the controller. If button was pressed, then the press is recreated.
+    if(get_val(PS3_SELECT)) {
+        set_val(PS3_SELECT,0);
+    }
+
+//end main
+}
+
+
+combo Arbitrator {
+	//Runs actions then moving of the selection cursor, and prevents Main loop from continually calling actions when game is not ready for the next selection yet. 
+	//Any pre-setup? values to put here?
+	
+	//Action
+	call(runAction);
+	
+	//Move cursor
+	call(runCursorMove);
+	
+	//Before finishing combo, wait to make sure the script has had a chance to move cursor in-game. 
+	wait(1000);
+}
+
+combo runCursorMove {
+//Check: Is cursor at end of the Row?
+	if(activeColumm == Columms) {
+		//Check : Is this the last row in Grid?
+		if(activeRow == Rows) {
+			combo_run(loadNextPage);
+		} else {
+		//Not the last Row, load next Row
+			combo_run(initNextRow);
+// **** Turn off Controller if battery low, or if 3 pages complete ****
+			if(get_battery() <= 4 || PagesComplete >= 3) {
+				turn_off();
+			}
+		}
+	//Nope, more Columms in Row remain. Continue normally	
+	} else {
+	//Check: Is this a Odd or Even numbered Row?
+		if(activeRow % 2 == 1) {
+	//For a cursor start at top left: Odd Row needs to move Right, Even Row move Left. Move Cursor accordingly. odd == 1
+		combo_run(pressRight);
+		} else {
+		combo_run(pressLeft);
+		}
+		activeColumm = activeColumm + 1
+	}
+}
+
+//
+// Press Download and Vote
+//----------------------------------------
+combo runAction {
+	// Download Creation
+	//----------------------------------------
+
+	//Download Selected Creation
+	set_val(PS4_CROSS, 100);
+	wait(150);
+	set_val(PS4_CROSS, 0);
+	wait(1490);
+	//Are you sure you want to download $ITEM?
+	set_val(PS4_CROSS, 100);
+	wait(250);
+	set_val(PS4_CROSS, 0);
+	//Extra press to account for "You have already downloaded"
+	wait(1500);
+	set_val(PS4_CROSS, 100);
+	wait(140);
+	set_val(PS4_CROSS, 0);
+	//Downloading Now - waiting to make sure game finishes download.
+	wait(DLwait);
+	//"You have sucessfully downloaded the creation: $ITEM" (Press X to exit this message)
+	set_val(PS4_CROSS, 100);
+	wait(150);
+	set_val(PS4_CROSS, 0);
+	wait(2040);
+	
+	// Cast Vote on Creation
+	// (Depreciated in favor of creator info screen)
+	//----------------------------------------
+
+	// Open Creation Info screen
+	//----------------------------------------
+	
+	//Open Creation Info Screen
+	set_val(PS4_SQUARE, 100);
+	wait(170);
+	set_val(PS4_SQUARE, 0);
+	wait(3210);
+	//Back To Search Screen
+	set_val(PS4_CIRCLE, 100);
+	wait(140);
+	set_val(PS4_CIRCLE, 0);
+	wait(1890);
+
+	// Move to next selection handle by arbitration combo
+}
+
+combo pressLeft {
+	wait(300);
+	set_val(PS4_LEFT, 100);
+	wait(180);
+	set_val(PS4_LEFT, 0);
+	wait(220);
+}
+combo pressRight {
+	wait(300);
+	set_val(PS4_RIGHT, 100);
+	wait(180);
+	set_val(PS4_RIGHT, 0);
+	wait(220);
+}
+
+combo initNextRow {
+	wait(300);
+	set_val(PS4_DOWN, 100);
+	wait(150);
+	set_val(PS4_DOWN, 0);
+	wait(180);
+	activeRow = activeRow + 1
+	activeColumm = 1
+}
+
+//
+// Start the next page
+//----------------------------------------
+combo loadNextPage {
+	wait(350);
+	//Switch Page and Notify User
+	set_val(PS4_R2, 100);
+	wait(130);
+	set_val(PS4_R2, 0);
+	wait(180);
+	call(Rumble1);
+	wait(10);
+	//Waiting for game to download creation data
+	wait(8100);
+	//Reset script to work with a new page
+	initModValues();
+	PagesComplete = PagesComplete + 1
+	call(Rumble2);
+}
+
+combo Rumble1 { 
+    // 1 short rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo Rumble2 { 
+    // 2 short rumbles
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+    wait(200);
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo cpress {
+//Recreate a probably recent Select button press
+	set_val(PS3_SELECT, 100);
+	wait(get_ptime(PS3_SELECT));
+	set_val(PS3_SELECT, 0);
+}
+
+combo customize {
+    //Enable 8x3: Mods
+    if(event_press(PS3_R1)) {
+		Rows = 3
+		Columms = 8
+		DLwait = 3210
+		initModValues();
+	}
+    //Enable 4x3: Tracks / Karts
+    if(event_press(PS3_L1)) {
+		Rows = 3
+		Columms = 4
+		DLwait = 4810
+		initModValues();
+	}
+    //Enable 7x7: Mods download (Creator profile)
+    if(event_press(PS3_TRIANGLE)) {
+		Rows = 7
+		Columms = 7
+		DLwait = 3520
+		initModValues();
+	}
+    // Restart / Disable
+    if(event_press(PS3_START)) {
+    	enable=!enable
+    	if(enable == 1) {
+    		initModValues();
+    	} 
+    	combo_run(Rumble1);
+	}
+	//Enable / Disable
+	//Cannot be used if you have not enabled the script at least once yet, or the script is in process of switching to next page.
+    if(event_press(PS3_PS) && activeColumm !=0) {
+		enable=!enable
+		combo_run(Rumble1);
+	}
+	
+	//Select custom size
+    if(event_press(PS3_UP)) {
+		Rows = Rows + 1
+		initModValues();
+	}
+    if(event_press(PS3_DOWN)) {
+		Rows = Rows - 1
+		if(Rows < 1) {Rows = 1}
+		initModValues();
+	}
+    if(event_press(PS3_LEFT)) {
+		Columms = Columms - 1
+		if(Columms < 1) {Columms = 1}
+		initModValues();
+	}
+    if(event_press(PS3_RIGHT)) {
+		Columms = Columms + 1
+		initModValues();
+	}
+ 	if(enable == 0) {combo_stop(Arbitrator); combo_stop(runAction);}
+	set_val(PS3_UP, 0);
+	set_val(PS3_DOWN, 0);
+	set_val(PS3_LEFT, 0);
+	set_val(PS3_RIGHT, 0);
+	set_val(PS3_R1, 0);
+	set_val(PS3_L1, 0);
+	set_val(PS3_L2, 0);
+	set_val(PS3_R2, 0);
+	set_val(PS3_PS, 0);
+	set_val(PS3_TRIANGLE, 0);
+	set_val(PS3_START, 0);
+        
+}
+
+function initModValues() {
+// Copies static size values to working values used to operate script
+	activeColumm = 1
+	activeRow = 1
+}
+// Need an older script version?
+// Previous Versions:
+// 1.4: http://cronusmax.com/gpclib/?s=5427
+// 1.3: http://cronusmax.com/gpclib/?s=5305
+// 1.2: http://cronusmax.com/gpclib/?s=5303
+// 1.1: http://cronusmax.com/gpclib/?s=5256
+// 0.7 / 0.8 / 1.0: http://cronusmax.com/gpclib/?s=5252

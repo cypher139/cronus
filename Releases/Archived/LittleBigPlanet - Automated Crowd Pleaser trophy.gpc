@@ -1,0 +1,115 @@
+//LittleBigPlanet - Automated Crowd Pleaser trophy
+// Author: CypherNova139		----		Console: PS3		----		Controller: All		----		Script Usage: Task Automation
+//v. 1.1 - 5/8/2018
+
+//Automatically earn someone the Crowd Pleaser trophy in LittleBigPlanet 1!
+//Just set this script on the level's "Play on my own" button and press L3 to start/stop the combo.
+
+//Features:
+// **Designed for LBP1 only!**:
+//    Automated Crowd Pleaser trophy! This will enter a level, then use the Return to Pod in Pause menu to quit out of the level. (NOTE: Later games require unique players!)
+//    (NOTE: Script combo expects the game / game's servers to respond within a certain timeframe. Internet lag may lengthen time spent loading beyond set combo limits. If this happens, just reset the combo run.)
+
+
+
+//While holding Select:
+//L3: Start automated Crowd Pleaser enter/exit level combo. BEFORE BEGINNING, place selection on "Play on my own".
+
+
+// Script begins! No need to change anything else
+
+int led, currentled, runc;
+
+init {
+
+
+//This led stuff shamelessly copied from RubberBand script by vkrouso
+    led = 0;
+    reset_leds();
+    while(led<4){
+        if(get_led(led)==1) currentled = led;
+        led = led + 1;
+    }
+
+}
+
+main {
+
+
+//Run automated Crowd Pleaser combo? 
+    if(runc > 0) {
+        combo_run(AutomatedTrophyCombo);
+    } else {
+        combo_stop(AutomatedTrophyCombo);
+        reset_leds();
+    }
+
+
+   if(event_press(PS3_L3)) {
+   		runc=!runc;
+   		set_val(TRACE_2, get_val(TRACE_2) + 1);	} 
+
+} 
+
+combo AutomatedTrophyCombo {
+//To use:
+//Place selection on "Play on my own" before starting combo.
+//This uses the Pause menu return to pod instead of finishing level!
+//Times account for potential internet being 2 seconds slow to load level.
+    set_val(PS3_CROSS, 100);
+    wait(120);
+    set_val(PS3_CROSS, 0);
+//loading level - 12 seconds
+    set_led(currentled, 3);
+    wait(12000);
+    set_led(currentled, 2);
+//in case of immediate level start message
+    wait(1000);
+    set_val(PS3_CIRCLE, 100);
+    wait(250);
+    set_val(PS3_CIRCLE, 0);
+    wait(250);
+//quitting level
+    set_led(currentled, 1);
+    set_val(PS3_START, 100);
+    wait(170);
+    set_val(PS3_START, 0);
+    wait(640);
+    set_val(PS3_DOWN, 100);
+    wait(160);
+    set_val(PS3_DOWN, 0);
+    wait(160);
+    set_val(PS3_DOWN, 100);
+    wait(190);
+    set_val(PS3_DOWN, 0);
+    wait(230);
+    set_val(PS3_CROSS, 100);
+    wait(180);
+    set_val(PS3_CROSS, 0);
+//loading menu - 7 seconds
+    set_led(currentled, 3);
+    wait(7000);
+    set_led(currentled, 1);
+//rating level
+    set_val(PS3_RIGHT, 100);
+    wait(170);
+    set_val(PS3_RIGHT, 0);
+    wait(230);
+    set_val(PS3_CROSS, 100);
+    wait(180);
+    set_val(PS3_CROSS, 0);
+    wait(880);
+    set_val(PS3_CROSS, 100);
+    wait(200);
+    set_val(PS3_CROSS, 0);
+    wait(440);
+//reloading level
+    set_val(PS3_UP, 100);
+    wait(160);
+    set_val(PS3_UP, 0);
+    wait(160);
+    set_val(PS3_UP, 100);
+    wait(190);
+    set_val(PS3_UP, 0);
+//loop to play level again.
+}

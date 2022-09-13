@@ -1,6 +1,6 @@
 ## Inversion
 
-[Changelog](Changelog - Inversion.md)
+[Changelog](Changelog.md)
 
 ```
   ___                                      

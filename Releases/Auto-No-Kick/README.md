@@ -1,7 +1,4 @@
 ## Auto-No-Kick
-
-[Changelog](Changelog - Auto-No-Kick.md)
-
 ```
     _         _              _   _             _  ___      _    
    / \  _   _| |_ ___       | \ | | ___       | |/ (_) ___| | __
@@ -9,6 +6,7 @@
  / ___ \ |_| | || (_) |_____| |\  | (_) |_____| . \| | (__|   < 
 /_/   \_\__,_|\__\___/      |_| \_|\___/      |_|\_\_|\___|_|\_\
 ```
+[Changelog](Changelog.md) | [Release](Auto-No-Kick.gpc)
 
 - Author: CypherNova139		
 - Console: All

@@ -1,5 +1,4 @@
-# cronus
- CronusMAX Scripts
+# Cypher's CronusMAX Scripts
 
 CypherNova139's repository of his custom CronusMAX scripts, mirrored here in case GPC Library site goes down again.
 

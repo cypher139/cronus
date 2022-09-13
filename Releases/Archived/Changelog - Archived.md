@@ -1,11 +1,11 @@
-### LBP1 Crowd Pleaser trophy:
+## LBP1 Crowd Pleaser trophy
 ###### 1.1 (5/8/18)
 Updates to combo: 
 - Removed redundant wait commands as wait times above 4 seconds seem to be working nowdays. 
 - Added a Circle button press in-game to account for levels which start immediately with a text bubble message.
 
 
-### ModNation Racers Creation Downloader:
+## ModNation Racers Creation Downloader
 ###### 1.1 (4/11/18)
 - Reworked next row setup portion of script to accommodate different size pages in-game; downloads of Tracks and Karts (4x3 grid) now works properly.
 - Finishing last row no longer moves cursor to start of row, rather it now immediately loads next page. 

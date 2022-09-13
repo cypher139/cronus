@@ -1,7 +1,4 @@
 ## Inversion
-
-[Changelog](Changelog.md)
-
 ```
   ___                                      
  |_ _|_ ____   _____ _ __ ___ _  ___  _ __  
@@ -10,6 +7,7 @@
  |___|_| |_|\_/ \___|_|  |___/_|\___/|_| |_|
                              (_)            
 ```
+[Changelog](Changelog.md) | [Release](Inversion.gpc)
 
 - Author: CypherNova139		
 - Console: All

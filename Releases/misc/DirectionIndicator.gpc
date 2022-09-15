@@ -1,0 +1,209 @@
+//This simple script shows what direction either analog stick is pointing.
+//New! It's not as simple, but adds support for Wii and Xbox 360 controllers! 
+
+//(PS3) LED 4 = Left / NW, 3 = Up / NE, 2 = Down / SW, 1 = Right / SE
+//(Wii) LED 1 = Left / NW, 2 = Up / NE, 3 = Down / SW, 4 = Right / SE
+//(360) LED 1 = NW, 2 = NE, 3 = SW, 4 = SE
+
+//1 = NW / L
+//2 = NE / U
+//3 = SW / D
+//4 = SE / R
+
+
+//Controls:
+//While holding Select / - / Back:
+//Start / +: Enable/disable the LEDs
+//L3/R3 / 2/1 / LS/RS: Switch between which stick is represented by the LEDs: L3 for left, R3 for right.
+//L1 / C / LB: Switch to/from diagonal mode. Unsupported by XB_360.
+//L2 / Z / LT: Reload controller type. This is used if you just switched to a different controller.
+
+
+int StickY, StickX, enableleddir, ledu, ledd, ledl, ledr, buttonpress, diagonal, blnkled;
+
+init {
+    StickY = PS3_LY; 
+    StickX = PS3_LX;
+    combo_run(controllertype);
+}
+
+main {
+
+if(enableleddir == 1) {
+    set_led(0,0);
+    set_led(1,0);
+    set_led(2,0);
+    set_led(3,0);
+}
+
+//select
+buttonpress = get_ptime(PS3_SELECT);
+
+// press - send to console
+if(event_release(PS3_SELECT) && get_ptime(PS3_SELECT) < 140) {
+    combo_run(cpress);
+} 
+// hold - customize part of script
+if(get_val(PS3_SELECT) && get_ptime(PS3_SELECT) > 140) { 
+    combo_run(customize);
+}
+// Completely block output to console from the controller. If button was pressed, then the press is recreated.
+if(get_val(PS3_SELECT)) {
+    set_val(PS3_SELECT,0);
+}
+
+// ---
+
+//up
+if(get_val(StickY) < -20) {
+    if(enableleddir == 1 && diagonal != 1) {
+        set_led(ledu,1); 
+    } else if(diagonal == 1) {
+//NE
+        if(get_val(StickX) > 20) {
+            set_led(ledu,1);
+        }
+    }
+}
+//down
+if(get_val(StickY) > 20) {
+    if(enableleddir == 1 && diagonal != 1) {
+        set_led(ledd,1); 
+    } else if(diagonal == 1) {
+//SW
+        if(get_val(StickX) < -20) {
+            set_led(ledd,1);
+        }
+    }
+}
+//left
+if(get_val(StickX) < -20) {
+    if(enableleddir == 1 && diagonal != 1) {
+        set_led(ledl,1); 
+    } else if(diagonal == 1) {
+//NW
+        if(get_val(StickY) < -20) {
+            set_led(ledl,1);
+        }
+    }
+}
+//right
+if(get_val(StickX) > 20) {
+    if(enableleddir == 1 && diagonal != 1) {
+        set_led(ledr,1); 
+    } else if(diagonal == 1) {
+//SE
+        if(get_val(StickY) > 20) {
+            set_led(ledr,1);
+        }
+    }
+}
+
+}
+
+combo customize {
+//      Enable/disables led directions
+    if(event_press(PS3_START)) {
+        if(enableleddir == 1) {
+            enableleddir = 0
+            reset_leds();
+        } else {
+            enableleddir = 1
+            set_led(0,0);
+            set_led(1,0);
+            set_led(2,0);
+            set_led(3,0);
+            if(StickY == PS3_LY) {
+                blnkled = 3
+                combo_run(blinkled);
+            } else if(StickY == PS3_RY) {
+                blnkled = 0
+                combo_run(blinkled);
+            }
+        }
+    }
+// Rescan controller type
+    if(event_press(PS3_L2)) {
+        combo_run(controllertype);
+        set_val(PS3_L2, 0);
+    }
+// Use left stick
+    if(event_press(PS3_L3)) {
+        StickY = PS3_LY
+        StickX = PS3_LX
+        blnkled = 3
+        combo_run(blinkled);
+    }
+// Use right stick
+    if(event_press(PS3_R3)) {
+        StickY = PS3_RY
+        StickX = PS3_RX
+        blnkled = 0
+        combo_run(blinkled);
+    }
+// Use diagonal
+    if(event_press(PS3_L1) && get_controller() != PIO_XB360) {
+        diagonal=!diagonal;
+    }
+set_val(PS3_L1, 0);
+set_val(PS3_L2, 0);
+set_val(PS3_L3, 0);
+set_val(PS3_R3, 0);
+set_val(PS3_START, 0);
+}
+
+
+
+combo cpress {
+    set_val(TRACE_3, buttonpress);
+    set_val(PS3_SELECT, 100);
+    wait(buttonpress);
+    set_val(PS3_SELECT, 0);
+}
+
+combo blinkled {
+    set_val(TRACE_3, blnkled);
+    set_led(blnkled, 2);
+    wait(300);
+    set_led(blnkled, 0);
+}
+
+combo controllertype {
+//Detecting controller, please wait...
+    if(get_controller() == PIO_PS3){
+//4 == left
+//3 == up
+//2 == down
+//1 == right
+        ledu = 2
+        ledd = 1
+        ledl = 3
+        ledr = 0
+        set_val(TRACE_1, 3);
+    }
+    if(get_controller() == PIO_WII){
+//1 = left
+//2 = up
+//3 = down
+//4 = right
+        ledu = 1
+        ledd = 2
+        ledl = 0
+        ledr = 3
+        set_val(TRACE_1, 72);
+    }
+    if(get_controller() == PIO_XB360){
+//Only one LED works at a time with 360 controllers, hw design iirc?
+//1 = NW / L
+//2 = NE / U
+//3 = SW / D
+//4 = SE / R
+        diagonal = 1
+        ledu = 1
+        ledd = 2
+        ledl = 0
+        ledr = 3
+        set_val(TRACE_1, 36);
+    }
+}
+        

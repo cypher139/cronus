@@ -1,0 +1,337 @@
+/*
+                     _              ____     ___       ____       ____  
+  ___ ___  _ __ ___ | |__   ___    / ___|_ _|_ _|_ __ |  _ \  ___|  _ \ 
+ / __/ _ \| '_ ` _ \| '_ \ / _ \  | |  _| '__| || '_ \| | | |/ _ \ |_) |
+| (_| (_) | | | | | | |_) | (_) | | |_| | |  | || | | | |_| |  __/  _ < 
+ \___\___/|_| |_| |_|_.__/ \___/   \____|_| |___|_| |_|____/ \___|_| \_\
+
+												 _   __     __  ___
+												| | / /__  / / <  /
+												| |/ / _ \/ /  / / 
+												|___/\___/_/  /_/  
+							                  			         //v 1.0 - 7/11/2020
+                                  
+// Author: CypherNova139		----		Console: All		----		Controller: See Below		----		Script Usage: Grinding Trophies
+*/
+
+
+// Effortlessly grind challenges to earn rewards in selected games or to make progress towards trophy requirements!
+// Setup the game to start the beginning of the challenge as per instructed, and then press R3 to start the pre-recorded combo. 
+// If all goes well your game will dole out rewards for you, while you complete other tasks in real life or in a different game!
+
+//-------------------------------
+// Available Grinds
+//-------------------------------
+/*
+	 Grind #1
+	
+	 Beach Buggy Racing
+	    Earn coins by failing Elimination matches.
+	    Setup: Use an Elimination challenge (The first Elimination challenge you encouter is Coconut Cup #3). Click on the challenge entry. Hover over the "Play!" button and start the combo.
+	-------------------------------
+	 Grind #2
+	
+	 Jak X: Combat Racing
+	    Earn Orbs by playing 5 min splitscreen no AI Capture matches.
+	    Setup: Start Split-screen mode. Cronus on Player 1, player 2 idles. Gamemode: Capture, Timelimit 5 minutes, set CPU Players to 0. Once in match start combo.
+	-------------------------------
+	 Grind #3
+	
+	 Ratchet and Clank: Going Commando
+	    Earn Raritanium by completing the same challenge over and over. Requires the nuke weapon!
+	    Setup: Go to Feltzin space combat world, Challenge #3. Hover over the menu entry and start the combo.
+	-------------------------------
+	 Grind #4
+	
+	 Volume
+	    Keep using disguise for 100 disguises used trophy.
+	    Setup: Enter a level that utilizes a disguise power up. Equip the powerup, then find a safe stealthy area and start the combo.
+	-------------------------------
+	 Grind #5
+	
+	 Volume
+	    Keep hiding in/out of locker for trophy.
+	    Setup: Stand in front of a locker that nearby enemies have no chance of spotting you using locker, then start the combo.
+	-------------------------------
+*/
+
+//-------------------------------
+// Controls
+//-------------------------------
+//           R3: Start/Stop Grind Combo
+//  Select + R3: Choose Active Grind Combo (A rumble indicates change, unless reset back to Grind #1)
+
+
+//-------------------------------
+// Notes
+//-------------------------------
+// TRACE_1: Idle loop Enabled
+// TRACE_2: Selected grind
+// TRACE_3: Loop iterations
+// TRACE_4: Loop iterations overflow (count of how many times Trace 3 hit 127)
+
+int select, rumble, enable, choose, powerupButton, actionButton, backButton;
+init {
+//-------------------------------
+// Choose a Grind
+//-------------------------------
+	choose = 1
+
+
+//-------------------------------
+// Controls Configuration
+//-------------------------------
+// Enable/Disable rumble to controller:
+	rumble = 0
+	
+// Select / Cancel buttons:
+// Playstation: FALSE if your select button is Cross, TRUE if Circle (typical for Japan/ Asia regions).
+// Xbox: FALSE
+	select = FALSE
+
+// Games that use a powerup button:
+	powerupButton = PS4_R2
+// Uncomment if playing the Vita version on a PS Vita or PlayStation TV system.
+//	powerupButton = PS4_R1
+
+
+// End Defaults.
+
+	if(select) {
+	// Japanese PS / Nintendo Consoles Layout
+		actionButton = 18
+		backButton = 19
+	} else {
+	// NA/Europe PS / Xbox Layout
+		actionButton = 19
+		backButton = 18
+	}
+}
+
+main {
+//Run Grind combo
+	if(enable) {
+		grinder(1);
+	}
+//Enable/Disable Grind Combo
+	if(event_release(5) && !get_val(1)) {
+		enable = !enable
+		set_val(TRACE_1, enable)
+		if(enable == 0) {grinder(2);}
+	}
+//Choose Grind Combo
+	if(get_val(1)) {
+		if(event_release(5)) {
+			if(choose < 5) {
+	    		choose = choose++;
+	    		combo_run(Rumble1);
+			} else {
+				choose = 1;
+			}
+		}
+	}
+//Misc Actions	
+	if(rumble == 0) { block_rumble();}
+	set_val(TRACE_2, choose);
+}
+combo Rumble1 { 
+    // 1 short rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+function grinder(_m) {
+	if(_m == 1) {
+		if(choose == 1) {combo_run(grinder_game1)}
+		if(choose == 2) {combo_run(grinder_game2)}
+		if(choose == 3) {combo_run(grinder_game3)}
+		if(choose == 4) {combo_run(grinder_game4)}
+		if(choose == 5) {combo_run(grinder_game5)}
+	}
+	if(_m == 2) {
+		combo_stop(grinder_game1);
+		combo_stop(grinder_game2);
+		combo_stop(grinder_game3);
+		combo_stop(grinder_game4);
+		combo_stop(grinder_game5);
+	}
+}
+
+function loopCount() {
+	set_val(TRACE_3, get_val(TRACE_3) + 1);
+	if(get_val(TRACE_3) == 127) {
+		set_val(TRACE_4, get_val(TRACE_4) + 1);
+		set_val(TRACE_3, 0);
+	}
+}
+
+//-------------------------------
+// Grind #1
+
+// Beach Buggy Racing
+//    Earn coins by failing Elimination matches.
+//-------------------------------
+
+//3.5 load
+//10 to start race plus 15 to elim
+combo grinder_game1 {
+//Start match, loading screen
+	set_val(19, 100);
+	wait(110);
+	set_val(19, 0);
+	wait(3500);
+//Skip track intro
+	set_val(19, 100);
+	wait(120);
+	set_val(19, 0);
+//Wait for Elimination
+	wait(25000);
+//Coin awards
+	set_val(19, 100);
+	wait(120);
+	set_val(19, 0);
+	wait(3500);
+//Press Play again
+	set_val(15, 100);
+	wait(130);
+	set_val(15, 0);
+	wait(120);
+	set_val(15, 100);
+	wait(140);
+	set_val(15, 0);
+	wait(720);
+	set_val(19, 100);
+	wait(100);
+	set_val(19, 0);
+	loopCount();
+}
+
+//-------------------------------
+// Grind #2
+
+// Jak X: Combat Racing
+//    Earn Orbs by playing 5 min splitscreen no AI Capture matches.
+//-------------------------------
+combo grinder_game2 {
+//Match start
+	wait(15000);
+//4 min
+	wait(30000);
+	set_val(8, 100);
+	wait(30000);
+	set_val(8, 0);
+	wait(30000);
+	set_val(8, 100);	
+	wait(30000);
+	set_val(8, 0);	
+	wait(30000);
+	set_val(8, 100);	
+	wait(30000);
+	set_val(8, 0);	
+	wait(30000);
+	set_val(8, 100);	
+	wait(30000);
+	set_val(8, 0);
+//match end
+	wait(10000);
+	set_val(19, 100);
+	wait(140);
+	set_val(19, 0);
+	wait(2130);
+	set_val(14, 100);
+	wait(160);
+	set_val(14, 0);
+	wait(670);
+	set_val(19, 100);
+	wait(140);
+	set_val(19, 0);
+	loopCount();
+}
+
+//-------------------------------
+// Grind #3
+
+// Ratchet and Clank: Going Commando
+//    Earn Raritanium by completing the same challenge over and over. Requires the nuke weapon, feltzin world challenge #3.)
+//-------------------------------
+combo grinder_game3 {
+    set_val(PS3_CROSS, 100);
+    wait(180);
+    set_val(PS3_CROSS, 0);
+    wait(270);
+    set_val(PS3_TRIANGLE, 100);
+    wait(280);
+    set_val(PS3_LEFT, 100);
+    set_val(PS3_TRIANGLE, 100);
+    wait(150);
+    set_val(PS3_LEFT, 0);
+    set_val(PS3_TRIANGLE, 100);
+    wait(100);
+    set_val(PS3_TRIANGLE, 0);
+    wait(220);
+    set_val(PS3_LX, -45);
+    wait(20);
+    set_val(PS3_LX, -78);
+    wait(70);
+    set_val(PS3_LX, -51);
+    wait(10);
+    set_val(PS3_LX, 0);
+    wait(300);
+    set_val(PS3_CIRCLE, 100);
+    wait(100);
+    set_val(PS3_CIRCLE, 0);
+    wait(510);
+    set_led(3,3);
+    set_val(PS3_SQUARE, 100);
+    wait(4000);
+    set_led(3,2);
+    wait(4000);
+    set_val(PS3_CIRCLE, 0);
+    wait(2000);
+    set_led(3,1);
+    set_val(PS3_CROSS, 100);
+    wait(180);
+    set_val(PS3_CROSS, 0);
+    wait(990);
+    set_val(PS3_LEFT, 100);
+    wait(160);
+    set_val(PS3_LEFT, 0);
+    wait(580);
+    set_val(PS3_CROSS, 100);
+    wait(180);
+    set_val(PS3_CROSS, 0);
+    set_led(3,0);
+	loopCount();
+}
+
+//-------------------------------
+// Grind #4
+
+// Volume
+//    Keep using disguise for 100 disguises used trophy.
+//-------------------------------
+combo grinder_game4 {
+	set_val(powerupButton, 100);
+	wait(130);
+	set_val(powerupButton, 0);
+	wait(20000);
+	loopCount();
+}
+
+//-------------------------------
+// Grind #5
+
+// Volume
+//    Keep hiding in/out of locker for trophy.
+//-------------------------------
+combo grinder_game5 {
+	set_val(actionButton, 100);
+	wait(130);
+	set_val(actionButton, 0);
+	wait(1500);
+	set_val(actionButton, 100);
+	wait(130);
+	set_val(actionButton, 0);
+	wait(1500);
+	loopCount();
+}

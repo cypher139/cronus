@@ -1,0 +1,335 @@
+/*
+ ____        _     _               ____                  _ __  __       _         _      
+|  _ \ _   _| |__ | |__   ___ _ __| __ )  __ _ _ __   __| |  \/  | __ _| |_  _ __(_)_  __
+| |_) | | | | '_ \| '_ \ / _ \ '__|  _ \ / _` | '_ \ / _` | |\/| |/ _` | __|| '__| \ \/ /
+|  _ <| |_| | |_) | |_) |  __/ |  | |_) | (_| | | | | (_| | |  | | (_| | |_ | |  | |>  < 
+|_| \_\\__,_|_.__/|_.__/ \___|_|  |____/ \__,_|_| |_|\__,_|_|  |_|\__,_|\__||_|  |_/_/\_\
+                                                                               //v. 1.0 - 1/10/2022          
+ 
+ // Author: CypherNova139		----		Console: All		----		Controller: Best with DS4		----		Script Usage: Task Automation                                                                           
+
+
+ This script will gladly hold down a button for you, called "rubberbanding" it. This is useful for leaving a controller unattended yet leaving it performing an in-game function.
+ But be careful, it's a bit "glitchy" if you are hard on your controls.
+
+ Script intended for DS4 controller to utilize the LEDs in selection mode.
+ Other non-LED equipped controllers work with the rubberband feature as well.
+
+
+ //-------------------------------\\
+              Controls
+ \\-------------------------------//
+ 
+ While playing:
+   PS button: Activate selection mode. 
+ 
+ White selection mode is active:
+   Touchpad (DS4), PS button (DS3/Xbox): Activate rubberband mode with the selected button. Be nice though.
+ 
+   Select/Share = Set the current button Identifier to 1 lower.
+   Start/Options = Set the current button Identifier to 1 higher.
+   /\, [], X, (), L1, L2, R1, R2, L3, R3, D-pad = Use the pressed button as the button to rubberband once active.
+   
+ While rubberband mode is Active:
+   PS button: Turn off Rubberband.
+ 
+ 
+-------------------------------\\         
+       Extra Information:
+       
+ --- TRACE monitors: (0 = no, 1 = yes)
+ TRACE_1 : Rubberband activated 
+ TRACE_3 : Current Button Identifier
+ Other traces are for debug use.
+
+
+ --- LED Status Notification for DS4 controllers.
+ (Non-DS4 controllers have different LED notifications)
+                        Default system LED display | : Normal controller, no rubberband actions active.
+ (DS4) Fast Green Blink | Super Fast Blink (Non-DS4) : Selection mode Active
+                  (DS4) Green | Slow Blink (Non-DS4) : Rubberband Active
+                    (DS4) Red | Fast Blink (Non-DS4) : Rubberband mode not available for use at this time; Please wait for the system to recharge.
+-------------------------------//
+
+*/
+
+//-------------------------------\\
+// LED Color Setup
+define Yellow = 0;
+define SkyBlue = 1;
+define Pink = 2;
+define Green = 3;
+define White = 4;
+define Red = 5;
+define Off = 6;
+data (
+0,2,2,0, // Yellow
+2,0,2,0, // SkyBlue
+0,0,0,2, // Pink
+0,0,2,0, // Green
+2,2,2,2, // White
+0,2,0,0, // Red
+0,0,0,0  // Off
+);
+//-------------------------------//
+
+int pNum, buttonOn, active, modeSelect, ben, buttonID[5]; 
+
+init {
+//-------------------------------\\
+//   Default Settings
+//-------------------------------//
+//Use TRUE or 1 to enable, FALSE or 0 to disable
+
+// Adjust PS4 gyro sensitivity
+// 1 can be too slight movement, 2+ is seen when moving controller and l3r3
+// is > not >=
+	buttonID[1] = 1
+	
+//Default button Identifier to rubberband	
+	buttonID[0] = 17
+		
+//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//END Defaults.
+//There is no more customizations to change further on.
+//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+		
+	getPlayerNumber(0);
+	buttonID[2] = 3
+	if(get_controller() == 4) {
+		buttonOn = PS4_TOUCH
+	} else {
+		buttonOn = PS3_PS
+	}
+}
+
+main {
+set_val(TRACE_6, modeSelect)
+//activate button
+	if(event_release(PS3_PS) && get_ptime(PS3_PS) < 500) {
+		if(active) {
+			if(ben != 1 && modeSelect == 0) {
+				//turn off
+				active = 0
+				reset_leds();
+			}
+		} else { 
+			if(ben != 1 && modeSelect == 0) {
+				modeSelect = 1;
+			} else {
+				if(!active) {combo_run(disabledLED);}
+			}
+		}
+		if(modeSelect == 2) {
+			modeSelect = 0
+		}
+	} else if(event_release(PS3_PS) && get_ptime(PS3_PS) > 500) {combo_run(createPress)}
+		
+//selection mode
+	if(modeSelect == 1) {
+	//restore ID
+		if(ben == 2) {
+			buttonID[0] = buttonID[2];
+			ben = 0;
+		}
+	//select id
+		combo_run(selectLED);
+		//go back	
+		if(event_press(PS4_SHARE)) {
+	   		buttonID[0] = buttonID[0] - 1;
+	   		if(buttonID[0] == -1) {
+				buttonID[0] = 29;
+			}
+	    	if(buttonID[0] > 0) {
+	    		combo_run(Rumble1);
+			}  
+		}
+		//advance
+		if(event_press(PS4_OPTIONS)) {
+	    	if(abs(buttonID[0]) < 29) {
+	    		buttonID[0] = buttonID[0] + 1;
+	    		combo_run(Rumble1);
+			} else {
+				buttonID[0] = 0;
+			}  
+		}
+				
+		// Hotkey Button Selection
+		if(event_press(3)) {buttonID[0] = 3}
+		if(event_press(4)) {buttonID[0] = 4}
+		if(event_press(5)) {buttonID[0] = 5}
+		if(event_press(6)) {buttonID[0] = 6}
+		if(event_press(7)) {buttonID[0] = 7}
+		if(event_press(8)) {buttonID[0] = 8}
+		if(event_press(13)) {buttonID[0] = 13}
+		if(event_press(14)) {buttonID[0] = 14}
+		if(event_press(15)) {buttonID[0] = 15}
+		if(event_press(16)) {buttonID[0] = 16}
+		if(event_press(17)) {buttonID[0] = 17}
+		if(event_press(18)) {buttonID[0] = 18}
+		if(event_press(19)) {buttonID[0] = 19}
+		if(event_press(20)) {buttonID[0] = 20}
+		//activate nicely or else
+		if(event_press(buttonOn)) {	
+			combo_stop(selectLED);
+			activeLed(Green);
+			//Sensor trip
+			if(abs(get_val(PS4_GYROX)) > buttonID[1] || abs(get_val(PS4_GYROY)) > buttonID[1]) {
+				buttonID[2] = buttonID[0];
+				ben = 1
+				//choose random button
+				buttonID[0] = abs(isqrt(pow((abs(get_val(PS4_LX)) + abs(get_val(28)) + abs(get_val(PS4_LY)) + abs(get_val(29)) + abs(get_val(PS4_ACCX)) + abs(get_val(PS4_ACCY))), 3)))
+				set_val(TRACE_5, 0)
+					//oob
+				if(buttonID[0] > 27) {
+					buttonID[0] = abs(isqrt(buttonID[0]))
+				}
+					//skip sticks
+				if(buttonID[0] >= 9 && buttonID[0] <= 12) {
+					set_val(TRACE_5, 1)
+					buttonID[0] = buttonID[0] + 3
+				}
+					//skip sixaxis
+				if(buttonID[0] > 20 || buttonID[0] < 4) {
+					set_val(TRACE_5, 1)
+					buttonID[0] = 12
+				}
+				combo_run(run2);
+			}
+			if(buttonOn == 0) {
+				modeSelect = 2
+			} else {
+				modeSelect = 0
+			}
+			active = 1
+		}
+		//no console during selection
+		set_val(0, 0);
+		set_val(1, 0);
+		set_val(2, 0);
+	    set_val(3, 0);
+	    set_val(4, 0);
+	    set_val(5, 0);
+	    set_val(6, 0);
+	    set_val(7, 0);
+	    set_val(8, 0);
+		set_val(13, 0);
+		set_val(14, 0);
+		set_val(15, 0);
+		set_val(16, 0);
+	    set_val(17, 0);
+	    set_val(18, 0);
+	    set_val(19, 0);
+	    set_val(20, 0);	
+		set_val(TRACE_3, buttonID[0]);
+	}
+	
+	//rubberband active
+	if(active) {set_val(buttonID[0], 100);}
+	set_val(TRACE_1, active);
+	set_val(TRACE_2, ben);	
+	set_val(0, 0);
+}
+
+combo run2 {
+	wait((buttonID[0] - 3) * 1000 + 100);
+	call(run2LED);
+	active = 0;
+	wait(buttonID[0] * 1000 + 2000);
+	reset_leds();
+	ben = 2;
+}
+
+combo run2LED {
+	wait(10);
+	activeLed(Red);
+	wait(400);
+	activeLed(Off);
+	wait(400);
+	//.81
+	activeLed(Red);
+	wait(300);
+	activeLed(Off);
+	wait(300);	
+	//1.4
+	activeLed(Red);
+	wait(250);
+	activeLed(Off);
+	wait(250);
+	//1.9
+	activeLed(Red);
+	wait(200);
+	activeLed(Off);
+	wait(300);
+	//2.4
+	activeLed(Red);
+	wait(100);
+	activeLed(Off);
+	wait(100);
+	activeLed(Red);
+	wait(100);
+	activeLed(Off);
+	wait(100);
+	activeLed(Red);
+	wait(100);
+	activeLed(Off);
+	wait(100);
+	activeLed(Red);
+	wait(100);
+	activeLed(Off);
+	wait(100);
+	//3.2 out
+	activeLed(Red);
+}
+combo disabledLED {
+	activeLed(Off);
+	wait(150);
+	activeLed(Red);
+	wait(150);
+	activeLed(Off);
+	wait(150);
+	activeLed(Red);
+}
+combo selectLED {
+	activeLed(Green);
+	wait(40);
+	activeLed(Off);
+	wait(40);
+	activeLed(Green);
+	wait(40);
+	activeLed(Off);
+	wait(40);
+	activeLed(Green);
+}
+combo createPress {
+    set_val(0, 100);
+    wait(get_ptime(0));
+    set_val(0, 0);
+}  
+combo Rumble1 { 
+    // 1 short rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+
+function activeLed(color) {
+	if(get_controller() == 4) {
+		set_led(LED_1, dbyte(color * 4));
+		set_led(LED_2, dbyte((color * 4) + 1));
+		set_led(LED_3, dbyte((color * 4) + 2));
+		set_led(LED_4, dbyte((color * 4) + 3));
+	} else {
+		if(color > 3) {color = 2}
+		if(color == 6) {color = 0}
+		set_led(pNum, color);
+	}
+}
+
+function getPlayerNumber(i3) {
+    i3 = 0;
+    reset_leds();
+    while(i3 < 4){
+        if(get_led(i3) == 1) pNum = i3;
+        i3++;
+    }
+}

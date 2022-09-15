@@ -1,0 +1,154 @@
+/*
+      _   _           ____  _ _____ 
+ _ __| | | |_ __ ___ | __ )| | ____|
+| '__| | | | '_ ` _ \|  _ \| |  _|  
+| |  | |_| | | | | | | |_) | | |___ 
+|_|   \___/|_| |_| |_|____/|_|_____|
+                                    //v 2.5 - 6/20/2020
+
+// Author: CypherNova139		----		Console: All		----		Controller: See Below		----		Script Usage: Controller Repair
+*/
+
+// A simple script to test the rumble functionality of the connected controller, to be used during repair and testing of a controller.
+
+
+//-------------------------------
+// Controls
+//-------------------------------
+//Variable strength controls:
+
+//PS3 / PS4 / 360:
+//       Hold L2 (PS3/4) / LT (XB360) for "A" rumble (Big motor)
+//       Hold R2 (PS3/4) / RT (XB360) for "B" rumble (Small motor)
+//XB1:
+//       Hold LB for "A" rumble (Big motor)
+//       Hold RB for "B" rumble (Small motor)
+// (XB1): Hold LT for Left impulse trigger rumble
+// (XB1): Hold RT for Right impulse trigger rumble
+//Wii Remote:
+//       Hold A for "A" rumble (Big motor)
+//       Hold B for "B" rumble (Small motor)
+// Note: Even though you can activate 2 different rumbles from here, only one motor is actually present in the Wii Remote.
+
+
+//Preset strength controls:
+
+// Select / Share / Back / - OR
+// Start / Options / Menu / + : Switch active motor used in preset mode: Big / Small / RT (XB1 only) / LT (XB1 only)
+//                    D-pad Up: Run active motor at 25% (LED 1 stays on)
+//                  D-pad Down: Run active motor at 50% (LED 2 stays on)
+//                  D-pad Left: Run active motor at 75% (LED 3 stays on)
+//                 D-pad Right: Run active motor at 100% (LED 4 stays on)
+
+//-------------------------------
+// Controller Support:
+//-------------------------------
+// Script supports all controllers, such as:
+// PS3, PS4, XB360, Wii Remote
+
+// Not personally tested:
+// Wii Remote + Pro controller
+// Wii U Pro controller
+// XB1 Controller
+
+//-------------------------------
+// Notes
+//-------------------------------
+// For best results use with a wireless controller as devices may have power and freezing issues when operating this over USB due to the vibration motors power draw.
+// If you are getting unintended results you may need to replug your CronusMAX device.
+// Older CronusMAX models may freeze up when handling both vibration motors at the same time, and/or frequent starting/stopping of motor.
+
+// Note: Only one motor is actually present in the Wii Remote, and no motors are present in the PS3's Navigation Controller.
+
+int RumbleAButton, RumbleBButton, ActiveRumbleMotor = 0;
+
+main {
+//-------------------------------
+// Wii and XB1 button remaps
+//-------------------------------
+	if(get_controller() == PIO_WII) {
+	    RumbleAButton = WII_A;
+	    RumbleBButton = WII_B;
+	} else if(get_controller() == PIO_XB1) {
+	    RumbleAButton = XB1_LB;
+	    RumbleBButton = XB1_RB;
+	} else {
+	    RumbleAButton = PS3_L2;
+	    RumbleBButton = PS3_R2;
+	}
+
+//-------------------------------
+// Variable Strength Rumble Tester
+//-------------------------------
+    if(get_val(RumbleAButton)) {
+        set_rumble(RUMBLE_A, get_val(RumbleAButton));
+    } else if(event_release(RumbleAButton)) {
+        set_rumble(RUMBLE_A, 0);
+    }
+
+    if(get_val(RumbleBButton)) {
+        set_rumble(RUMBLE_B, get_val(RumbleBButton));
+    } else if(event_release(RumbleBButton)) {
+        set_rumble(RUMBLE_B, 0);
+    }
+   
+//-------------------------------
+// XB1 impulse triggers.
+// Not supported on other controllers as the extra rumble hardware is only present on XB1 controllers.
+//-------------------------------
+    if(get_val(XB1_LT) && get_controller() == PIO_XB1) {
+        set_rumble(RUMBLE_LT, get_val(XB1_LT));
+    } else if(event_release(XB1_LT)) {
+        set_rumble(RUMBLE_LT, 0);
+    }
+    if(get_val(XB1_RT) && get_controller() == PIO_XB1) {
+        set_rumble(RUMBLE_RT, get_val(XB1_RT));
+    } else if(event_release(XB1_RT)) {
+        set_rumble(RUMBLE_RT, 0);
+    }
+    
+//-------------------------------
+// Preset Strength Rumble Tester
+//-------------------------------
+	if(get_val(13)) {
+		set_rumble(ActiveRumbleMotor, 25);
+	    led(0);
+	}
+	if(get_val(14)) {
+		set_rumble(ActiveRumbleMotor, 50);
+	    led(1);
+	}
+	if(get_val(15)) {
+		set_rumble(ActiveRumbleMotor, 75);
+	    led(2);
+	}
+	if(get_val(16)) {
+		set_rumble(ActiveRumbleMotor, 100);
+	    led(3);
+	}
+//Switch Active Rumble Motor
+    if(event_press(1) || event_press(2)) {
+    	if(get_controller() == PIO_XB1) {
+    		if(ActiveRumbleMotor < 3) {
+    			ActiveRumbleMotor = ActiveRumbleMotor++;
+			} else {
+				ActiveRumbleMotor = 0;
+			}
+    	} else {
+    		ActiveRumbleMotor=!ActiveRumbleMotor;
+		}
+    }
+//Release Rumble when Not Pressed
+	if(event_release(13) || event_release(14) || event_release(15) || event_release(16)) {
+		set_rumble(ActiveRumbleMotor, 0);
+	}
+	set_val(TRACE_1, ActiveRumbleMotor);
+}
+	
+function led(_m) {
+	set_led(0, 0);
+	set_led(1, 0);
+	set_led(2, 0);
+	set_led(3, 0);
+	set_led(_m, 1);
+}

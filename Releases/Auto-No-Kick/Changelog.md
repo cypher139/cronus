@@ -42,7 +42,7 @@ Changes:
  - Fix: In deadzone detection, check for negative axis was checking double the required amount. (added inv() instead of shortcut op -)
  
 ###### 2.6 (8/13/18)
-Changelog not found.
+Changelog not found.  
 (Simpler feature set: No LEDs, Axis hold, Timed Button Hold, Step movement, Temporary Script Disable, or various Presets.)
 
 ###### 2.2 (4/21/18)

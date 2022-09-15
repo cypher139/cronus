@@ -16,7 +16,7 @@
 \*Xbox controllers or other motionless controllers cannot use Sixaxis motion controls to thumbstick mode.
 
 
-If you have a need to use normal thumbstick controls during a PlayStation Sixaxis Motion Control segment of a PS3/4 game, or you are utilizing controllers without motion features (i.e. Xbox controllers):
+If you have a need to use normal thumbstick controls during a PlayStation Sixaxis Motion Control segment of a PS3/4 game, or you are utilizing controllers without motion features (i.e. Xbox controllers):  
 ...Or, if you need to use motion controllers in a game that originally does not feature them:
 
 
@@ -31,7 +31,7 @@ If you have a need to use normal thumbstick controls during a PlayStation Sixaxi
 
 This script mode remaps one of the Analog Sticks, or Wii IR / PS4 Touchpad, to the Sixaxis Y & X axises, for use during motion control segments of a PS3 or PS4 game. 
 
-Tested with "Bentley's Hackpack", "LittleBigPlanet". 
+Tested with "Bentley's Hackpack", "LittleBigPlanet".  
 Due to PS4 and CM limitations, script compatibility with *PS4 Games* is not guaranteed. Please stay tuned to the forums for more info.
 
 
@@ -42,8 +42,8 @@ Controller Sixaxis Input to Stick Output.
 
 \*\*\*\*\* If you need to use motion controls in a game that originally does not feature them:
 
-This script mode remaps the Sixaxis (or Wii IR / PS4 Touchpad) to a thumbstick.
-          \*\*This mode is active by default if you are using an Xbox console.\*\*
+This script mode remaps the Sixaxis (or Wii IR / PS4 Touchpad) to a thumbstick.  
+          \*\*This mode is active by default if you are using an Xbox console.\*\*  
 Tested with "Mirror's Edge". 
 
 

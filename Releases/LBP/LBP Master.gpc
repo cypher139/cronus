@@ -1,0 +1,423 @@
+//Become the Master Sackboy in LittleBigPlanet with this script, by automating simple tasks!
+//Designed for LBP1 or LBP2, but works in later games.
+
+//Features:
+
+// **Designed for LBP1 only!**:
+//    Automated "Crowd Pleaser" trophy!
+//			- (Now a Separate download! Download here: http://cronusmax.com/gpclib/?s=4527 )
+//    "QuickFire Artiste" trophy (40 shots in 5 seconds): 
+//			- Automatically starts a Five second countdown when double-tapping R1.
+//			- LEDs indicate how many shots you have fired during these 5 seconds. 
+//					(LED confirmation system designed for PS3 controllers. Other controllers may not display LEDs correctly.)
+//					LED 1 lit: At least 10 shots fired. LED 2 = At least 20, LED 3 = At least 30, LED 4 = At least 40 shots fired, LED 4 (blinking) = OVER 40 shots fired. Trophy!
+// 			- Vibration confirmation of when those 5 seconds have passed! (Or cheat and use Rapid Fire, your choice.)
+
+// **Also works with LBP2**:
+//    - Toggle "Rubberband" of R1 button! 
+//			Useful if you are needing to grab objects with the controller unattended, such as in a x4 prize section if you are using 2 or more controllers.
+//    - Rapid Fire Paininator / Weapon on R1!
+//			Useful for the VR survival challenge or the "Speedy Rexecutioner" trophy, or just fighting with friends. (Trophy mentioned is for LBP1.)
+//    - Automated Slaps!
+//			Press either trigger to initiate that side's slap without having to use the sticks. Give the trigger a hard press, don't be shy!
+
+// **Designed with LBP2 in mind**:
+//    - "Beakers We Can" trophy (Do NOT fire more than 40 Beakers)
+//      	Track how many paininator shots have been fired (i.e. R1 button presses), using the TRACE_4 monitor and the controller LEDs! 
+//			Before starting the level, hold Select and press L2 to activate the shot counter. The controller LEDs will show how many shots fired (in tens).
+//    - Rapid Fire on X
+//			Useful for certain Avalonia / Eve's Asylum / Negativitron levels.
+//    - Rapid Fire on [] (Square)
+//			Useful for boosting the "1440 Minutes of Create" trophy in LBP2.
+//    - Switch stick Y axises
+//			Useful for more precisely controlling the Grappling Hook.
+//			- An "Alternate" mode will only activate the axis swap if R1 is being pressed.
+//    - Alternate head/body animation movement control
+//			Might be useful for more precisely animating head or body motions for your own level's cutscenes.
+
+
+
+//Version 2.10
+//Controls:
+
+// L2 (press hard): Slap player on Left (Note: Due to the game's slap control design, the game will disable movement input while performing a left slap!)
+// R2 (press hard): Slap player on Right.
+// R1 (double tap): Start 5 second countdown timer, made for "QuickFire Artiste" trophy.
+// L3: Enable/Disable Stick Y axis swap. A vibration indicates Enabled. (Note: By default this script action is disabled until you press L3 while holding Select.)
+//		(Note: In "Alternate" mode the Y axis swap will only be performed if R1 is being pressed.)
+// R3: Enable/Disable RapidFire Mode. After this no buttons need to be held.
+// Touchpad / Wii IR (When Enabled): Animate on-screen character.
+
+//**While in Rapid Fire mode:** (LED will blink fast while enabled)
+// R1: Selects the R1 button as the button to rapid fire. (Default)
+// X:  Selects the X button as the button to rapid fire.
+// [] (Square): Selects the [] button as the button to rapid fire.
+
+//While Holding R1:
+// L1: Toggle "Rubberband" of R1 button, useful if needing to grab objects with controller unattended.
+
+//While holding Select:
+//       L1: Resets counters.
+//       L2: Start Shot Counter. (no 5 second timer)
+//       L3: Switch Stick Y axis swap mode. (Off/Normal/Alternate) (A vibration indicates Normal or Alternate mode selected)
+//       R1: Enable/disable 5 second countdown feature.
+//        X: Enable/disable Rapidfire capability on X.
+//   Square: Enable/disable Rapidfire capability on Square.
+//PS / Home: Enable/disable using controller-specific features other than Sixaxis to animate your character on-screen. Supports PS4 touchpad and Wii Remote IR.
+//           (Note: The touchpad X/Y values stay where they were moved to last on the touchpad, useful for holding a pose ;)
+
+
+//TRACE monitors:
+//TRACE_2: Rapidfire On (1) / Off (0).
+//TRACE_3: Current seconds of the 5 second countdown (counts up).
+//TRACE_4: R1 presses. This resets after 5 seconds is done, if the timer was activated.
+//TRACE_5: R1 presses from Rapidfire combo! (100% Count Registration Accuracy by LBP is not guaranteed. Try 95% :P )
+//TRACE_6: Shows number of R1 presses after 5 seconds countdown has finished.
+
+
+//ideas to implement:
+//None right now
+
+// Script begins! No need to change anything else
+
+int led, currentled, hold_time, rest_time, FireButton, run5, holdr1, rfenable, rfenablex, rfenablesq, animateY, animateX, animateIx, animate, a, enablelc, syswap, syswaprun;
+
+    int timelimit=300; // increase if is to fast
+    int time_to_DblClick_R = 0;
+    int counter_dblClick_R = 0;
+
+
+init {
+
+syswaprun = 0
+//Enable or disable five second countdown? 0 = enable, 1 = disable.
+run5 = 0
+enablelc = 0
+
+//Rapid Fire Initial setup
+rfenable = 0;
+FireButton = PS3_R1;
+
+//Rapid fire
+hold_time = 40
+rest_time = 20;
+
+
+//This led stuff shamelessly copied from RubberBand script by vkrouso
+    led = 0;
+    reset_leds();
+    while(led<4){
+        if(get_led(led)==1) currentled = led;
+        led = led + 1;
+    }
+
+}
+
+main {
+
+// Double click copied from token
+// This starts the 5 seconds timer to help with the "Quick Fire Artiste" trophy, to fire 40 shots in 5 seconds.
+// When controller vibrates, 5 seconds has passed and you should have fired 40 shots by now.
+//   time to R button Double click ( Thanks to CronusTECH for the 'timer')
+    if (time_to_DblClick_R>0) time_to_DblClick_R=time_to_DblClick_R - get_rtime();
+
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    if (event_press(PS3_R1) && time_to_DblClick_R<=0){time_to_DblClick_R =timelimit;}
+else if (event_press(PS3_R1) && time_to_DblClick_R> 0){counter_dblClick_R=counter_dblClick_R + 1; combo_run (fivesecrumble);}
+
+//Select button: Script or grief?
+    // press - send to console
+    if(event_release(PS3_SELECT) && get_ptime(PS3_SELECT) < 140) {
+        combo_run(cpress);
+    } 
+    // hold - customize part of script
+    if(get_val(PS3_SELECT) && get_ptime(PS3_SELECT) > 140) { 
+        combo_run(customize);
+    }
+    // Completely block output to console from the controller. If button was pressed, then the press is recreated.
+    if(get_val(PS3_SELECT)) {
+        set_val(PS3_SELECT,0);
+    }
+
+//R1 toggle
+//Set toggle with L1
+//Turn rapidfire off!
+     if(get_val(PS3_R1) && rfenable == 0){
+        if(event_press(PS3_L1)){
+            holdr1=!holdr1;
+            set_val(PS3_L1, 0);
+        }
+    }
+//Apply toggle
+    if(holdr1 == 1) {set_val(PS3_R1, 100);}
+
+
+//Enable/Disable Rapidfire toggle.
+    if(event_release(PS3_R3)) {
+        rfenable=!rfenable;
+        set_val(TRACE_2, rfenable);
+    }
+
+
+// Rapid fire: R1 / X / []!
+    if(rfenable == 1) {
+        set_led(currentled, 2);
+        if(get_val(PS3_R1)) {
+        //Best times found so far: 40/20
+            hold_time = 40;
+            rest_time = 20;
+            FireButton = PS3_R1;
+        }
+        if(get_val(PS3_CROSS) && rfenablex == 1) {
+            hold_time = 50;
+            rest_time = 20;
+            FireButton = PS3_CROSS;
+        }
+        if(get_val(PS3_SQUARE) && rfenablesq == 1) {
+            hold_time = 40;
+            rest_time = 200;
+            FireButton = PS3_SQUARE;
+        }
+            combo_run(rapidfire);
+        } else if(combo_running(rapidfire)) {
+            combo_stop(rapidfire);
+            set_led(currentled, 1);
+    }
+
+//Animation - Use controller-specific features instead of Sixaxis to animate the characters on screen.
+	    // Note: Sixaxis axis values are only to +/-25 instead of +/-100. To get better, slower axis response in-game, how should we divide the values presented in the remap?
+	    // A higher number means more response from the original axis is needed to animate the character on-screen.
+	    // 2 is a bit fast, 3 seems to be the sweet spot for precise animation with less axis travel, 4 may require more travel along the original axis.
+	
+	if(animate == 1) {
+	    set_val(PS3_ACCX, get_val(animateX) / 3 * animateIx);
+	    set_val(PS3_ACCY, get_val(animateY) / 3 * -1);
+	    set_val(TRACE_6, animate);
+	}
+	
+// Stick Y swap
+    if(event_release(PS3_L3) && syswap != 0 && !combo_running(customize)) {
+        syswaprun=!syswaprun;
+        if(syswaprun > 0) {combo_run(Rumble1);}
+    }
+    
+    if(syswaprun == 1) {
+		if(syswap == 1) {
+			swap(PS3_LY, PS3_RY);
+		}
+		if(syswap == 2 && get_val(PS3_R1)) {
+			swap(PS3_LY, PS3_RY);
+		}
+	}
+
+
+//Auto slap, press and release the trigger. Don't give it a press, give it a whack! Works better that way.
+    if(event_release(PS3_R2) && get_ptime(PS3_R2) < 160) {
+       combo_run(rightslap);
+    } 
+    if(event_release(PS3_L2) && get_ptime(PS3_L2) < 160) {
+       combo_run(leftslap);
+    } 
+
+//Counting Paininator shots.
+    if(event_release(PS3_R1)) {
+        set_val(TRACE_4, get_val(TRACE_4) + 1);
+    }
+    if(enablelc == 1) {
+        ledcount(get_val(TRACE_4));
+    }
+
+}
+
+// ------------- END MAIN BLOCK
+
+
+combo Rumble1 { 
+    // 1 short rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo customize {
+set_val(TRACE_5, run5);
+//Concentrate!
+    rfenable = 0;
+//Resets counters.
+    if(event_press(PS3_L1)) {
+		counterreset();
+    }
+//Start Shot Counter (No timer)
+    if(event_press(PS3_L2)) {
+        enablelc=!enablelc;
+		counterreset();
+    }
+    
+//Swap Stick Y axis
+    if(event_press(PS3_L3)) {
+        syswap = syswap + 1;
+        if(syswap == 3) {syswap = 0}
+        if(syswap > 0) {combo_run(Rumble1);}
+    }
+
+//Setup to enable/disable 5 sec countdown
+    if(event_press(PS3_R1)) {run5=!run5;} 
+
+//Setup to enable/disable rapidfire on X
+    if(event_press(PS3_CROSS)) {rfenablex = !rfenablex;} 
+
+//Setup to enable/disable rapidfire on []
+    if(event_press(PS3_SQUARE)) {rfenablesq = !rfenablesq;} 
+
+//animate character Setup
+    if(event_press(PS3_PS)) {
+        animate = !animate;
+        if(get_controller() == PIO_WII){
+        //Axises to remap.
+            animateX = WII_IRX
+            animateY = WII_IRY
+        // animateIx: Sixaxis X axis is inverted. Is the axis we are remapping also presented inverted?
+            animateIx = 1
+        }
+        else if(get_controller() == PIO_PS4){
+            animateX = PS4_TOUCHX
+            animateY = PS4_TOUCHY
+            animateIx = -1
+        }
+        else {
+            set_val(TRACE_3, 99);
+            animate = 0;
+        }
+
+    }
+
+    set_val(PS3_START, 0);
+    set_val(PS3_L1, 0);
+    set_val(PS3_L2, 0);
+    set_val(PS3_L3, 0);
+    set_val(PS3_R3, 0);
+    set_val(PS3_R1, 0);
+    set_val(PS3_R2, 0);
+    set_val(PS3_PS, 0);
+    set_val(PS3_CROSS, 0);
+    set_val(PS3_SQUARE, 0);
+    set_val(PS3_CIRCLE, 0);
+} 
+
+combo cpress {
+    set_val(PS3_SELECT, 100);
+    wait(get_ptime(PS3_SELECT));
+    set_val(PS3_SELECT, 0);
+}  
+
+combo fivesecrumble {
+    if(run5 > 0) { combo_stop(fivesecrumble);}
+//    set_ledx(-1,0);
+    enablelc = 1;
+    wait(1000);
+//1
+//    set_led(0,1);
+    set_val(TRACE_3, 1);
+    wait(1000);
+//2
+//    set_led(1,1);
+//    set_led(0,0);
+    set_val(TRACE_3, 2);
+    wait(1000);
+//3
+//    set_led(2,1);
+//    set_led(1,0);
+    set_val(TRACE_3, 3);
+    wait(1000);
+//4
+//    set_led(3,1);
+//    set_led(2,0);
+    set_val(TRACE_3, 4);
+    wait(1000);
+//5
+    set_val(TRACE_3, 5);
+    enablelc = 0;
+    set_val(TRACE_6, get_val(TRACE_4));
+    set_rumble(RUMBLE_B, 100);
+    wait(50);
+    set_val(TRACE_4, 0);
+    wait(550);
+    set_rumble(RUMBLE_B, 0);
+//    set_ledx(-1,0);
+}
+
+combo rapidfire {
+    set_val(FireButton, 100);
+    wait(hold_time);
+    set_val(FireButton, 0);
+    wait(rest_time);
+    set_val(TRACE_5, get_val(TRACE_5) + 1);
+    set_val(FireButton, 0);
+	wait(rest_time);
+}
+
+combo rightslap {
+    set_val(PS3_R2, 100);
+    set_val(PS3_RX, -100);
+    wait(150);
+    set_val(PS3_R2, 100);
+    set_val(PS3_RX, -90);
+    wait(10);
+    set_val(PS3_R2, 100);
+    set_val(PS3_RX, 76);
+    wait(10);
+    set_val(PS3_R2, 100);
+    set_val(PS3_RX, 100);
+    wait(160);
+    set_val(PS3_R2, 0);
+    set_val(PS3_RX, 48);
+    wait(10);
+    set_val(PS3_RX, 0);
+}
+
+combo leftslap {
+    set_val(PS3_L2, 100);
+    set_val(PS3_LX, 68);
+    wait(20);
+    set_val(PS3_L2, 100);
+    set_val(PS3_LX, 92);
+    wait(10);
+    set_val(PS3_L2, 100);
+    set_val(PS3_LX, 100);
+    wait(100);
+    set_val(PS3_L2, 100);
+    set_val(PS3_LX, 30);
+    wait(10);
+    set_val(PS3_L2, 100);
+    set_val(PS3_LX, -52);
+    wait(10);
+    set_val(PS3_L2, 100);
+    set_val(PS3_LX, -100);
+    wait(350);
+    set_val(PS3_L2, 0);
+    set_val(PS3_LX, -95);
+    wait(20);
+    set_val(PS3_LX, -68);
+    wait(10);
+    set_val(PS3_LX, 0);
+}
+
+function ledcount(a) {
+	set_led(0,0);
+	set_led(1,0);
+	set_led(2,0);
+	set_led(3,0);
+	if(a <= 9) {set_val(TRACE_1, 0)}
+	if(a > 9) {set_val(TRACE_1, 10)  set_led(0,1)}
+	if(a > 19) {set_val(TRACE_1, 20)  set_led(1,1)}
+	if(a > 29) {set_val(TRACE_1, 30)  set_led(2,1)}
+	if(a == 40) {set_val(TRACE_1, 40)  set_led(3,1)}
+	if(a > 40) {set_val(TRACE_1, 41) set_led(3,2)}
+}
+
+function counterreset() {
+    set_val(TRACE_3, 0);
+    set_val(TRACE_4, 0);
+    set_val(TRACE_5, 0);
+    set_val(TRACE_6, 0);
+}

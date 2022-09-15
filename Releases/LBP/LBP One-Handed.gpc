@@ -1,0 +1,77 @@
+//This script remaps essential gameplay button functions in LittleBigPlanet to a controller easily operated with one hand.
+//Intended for playing by oneself "Sackboy's Prehistoric Moves", as you can then use the Move controller at the same time as moving the Sackboy.
+
+//Supports all controllers, although a PS3 Navigation Controller or a Wii Remote + Nunchuk is recommended.
+
+
+//Controls:
+//              PS3 or 4 / Xbox 360 or 1
+//    Grab item: L1      / LB              
+//         Jump: L2      / LT             
+//   Open Popit: L3      / LS             
+// Back / Close: Select  / Back/View      
+// All face buttons also operate normally, as the Navigation controller has X and Circle. :)
+//             **Wii Remote / Wii Remote + Nunchuk:**
+//        Grab item: B / C
+//             Jump: A / Z 
+//       Open Popit: 2
+//     Back / Close: - (Minus)
+//         Movement: Dpad or IR / Nunchuk stick 
+// Movement with IR: Press 1 to enable/disable
+
+
+//Supported controllers:
+// PS3: Navigation Controller
+// Wii Remote
+// Wii Remote + Nunchuk
+//Supported controllers, but not recommended to hold with one hand.
+// PS3, PS4, XB_360, XB1
+//Untested controllers:
+// Wii Remote + Pro controller.
+// (According to button mappings list: The Pro controller would operate the same as a PS3/4/360/1 controller with a couple differences: 1) No L3 support - So the Remote's 2 button would still be the back button. 2) Since it is a Wii controller the B button would grab items, and NOT function as the menu back button.).
+
+
+int grab, jump, popit, back, ir;
+
+init {
+        grab = PS3_L1;
+        jump = PS3_L2;
+        popit = PS3_L3;
+        back = PS3_SELECT;
+}
+
+
+main {
+    if(get_controller() == PIO_WII) {
+        if(event_press(WII_ONE)) { ir=!ir; set_val(WII_ONE, 0)}
+        if(get_val(WII_LEFT)) { set_val(PS3_LX, -100); set_val(WII_LEFT, 0) }
+        if(get_val(WII_RIGHT)) { set_val(PS3_LX, 100); set_val(WII_RIGHT, 0) }
+        //Grab remap for Wii remote. Must be listed first before other remaps to avoid "feedback loop"
+        if(get_val(WII_B)) { set_val(PS3_R1, 100); set_val(WII_B, 0) }
+    }
+    //Grab
+    if(get_val(grab)) {
+        set_val(PS3_R1, 100);
+        set_val(grab, 0);
+    }
+    //jump
+    if(get_val(jump)) {
+        set_val(PS3_CROSS, 100);
+        set_val(jump, 0);
+    }
+    //popit
+    if(get_val(popit)) {
+        set_val(PS3_SQUARE, 100);
+        set_val(popit, 0);
+    }
+    //back - close menu item
+    if(get_val(back)) {
+        set_val(PS3_CIRCLE, 100);
+        set_val(back, 0);
+
+    }
+    if(ir == 1) {
+        set_val(PS3_LX, get_val(WII_IRX));
+    }
+
+}

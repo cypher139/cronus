@@ -14,6 +14,36 @@ Additions:
 Added: 
 - Axis travel Limiter. A specified Button or Axis can be set to output up to a certain axis travel range, useful for pressure-sensitive button games to ensure a light button tap is used or for racing games to limit the amount of throttle used.
 
-###### 2.4 (9/22/18)
-Changelog not found.
+###### 2.4.4 (9/22/18)
+- Added ability to swap Select / Touchpad left and leave Start unchanged.
+- Added trigger remap to X / Square (A / X).
+- SHARE button workaround: You can now use PS + Start to use the SHARE button on the PS4 system, like you would do when playing a PS Vita system. Support is currently experimental.
+- Removed the Touchpad swap from the saved profile settings.
 
+###### 2.4.3 (9/8/18)
+- Addition: Ability to disable Profile Switch Hotkey [v2.43: Removed Profile Enable/Disable in favor of disabling Hotkey]
+
+###### 2.4.2 (9/8/18)
+- Addition: Ability to disable Profile Switch Hotkey
+- Documentation Updates, New welcome banner
+- Readability Updates
+- TRACE notifications have been updated / consolidated, comments throughout script look slightly better?
+- Fix: DS4 controllers can now disable Select/Start to Touchpad Left/Right swap.
+- Various optimizations to save 100 bytes O_o
+
+###### 2.4.1 (12/18/17)
+- Added Select/ Start to Touchpad press on Left/Right swap, for non-DS4 controllers on certain PS4 games / PS2-on-PS4 games. 
+(2.41) Bug Fixes: 
+- Fixed incorrect implementation of Touchpad swap.
+- Fixed saved profile not loading thumbstick swap if it was saved with a Touchpad-\>stick swap. 
+- Documentation readability / updates.
+
+###### 2.3 (12/1/16)
+- Added ability to swap sticks, just like swapping triggers. (2.3 added touchpad as well)
+- Now uses function instead of combo for swapping function
+
+###### 2.1 (7/21/15)
+- Added Bumper/Trigger remaps! (2.1: Update to remap implementation)
+
+###### 1.0 to 2.0 (?)
+Changelogs not found.

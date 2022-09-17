@@ -1,0 +1,172 @@
+/*
+
+
+ _________  ___  ___  ________  ________  ________  ________  ________  ________     
+|\___   ___\\  \|\  \|\   __  \|\   __  \|\   __  \|\   __  \|\   __  \|\   __  \    
+\|___ \  \_\ \  \\\  \ \  \|\  \ \  \|\ /\ \  \|\  \ \  \|\  \ \  \|\  \ \  \|\  \   
+     \ \  \ \ \  \\\  \ \   _  _\ \   __  \ \  \\\  \ \  \\\  \ \  \\\  \ \  \\\  \  
+      \ \  \ \ \  \\\  \ \  \\  \\ \  \|\  \ \  \\\  \ \  \\\  \ \  \\\  \ \  \\\  \ 
+       \ \__\ \ \_______\ \__\\ _\\ \_______\ \_______\ \_______\ \_______\ \_______\
+        \|__|  \|_______|\|__|\|__|\|_______|\|_______|\|_______|\|_______|\|_______|
+                                                                                     
+                                                                                    //v. 1.9 - 9/23/2018 
+                                                                                     
+
+*/
+// Author: CypherNova139		----		Console: All		----		Controller: All		----		Script Usage: Task Automation
+
+
+//Do you need to press buttons over and over again? This script will press a button (defined as TurboButton) over and over again in a infinite loop, 
+//which can be enabled and disabled at will, effectively "turboing" the desired button.
+//Unlike turbo controllers this loop stays enabled without your intervention, leaving no need to hold down the button to be "turbo"'d! 
+
+// To better gauge the turbo press speed the current player controller LED will light up whenever the Turbo button is pressed,
+// and turns off when it is not being pressed.
+
+
+
+//-------------------------------
+// Features
+//-------------------------------
+// - Turbo press up to 2 buttons simultaneously
+// - Adjustable turbo button press frequency, even during gameplay
+// - LED turns on and off in time with the turbo button presses.
+
+
+//-------------------------------
+// Controls
+//-------------------------------
+// R3 (default): Start/Stop turbo press loop.
+
+// While holding Select:
+//  L1: Decrement Rest Time by 250ms (up to 50ms)
+//  R1: Increment Rest Time by 250ms (up to 4 seconds)
+//  L2: Set Hold and Rest time to 250ms
+//  R2: Set Hold time to 250ms, Set Rest time to 4 seconds.
+
+//TRACE_6: Current RestTime / 100
+
+
+//-------------------------------
+// Games Tested / Examples
+//-------------------------------
+// Game: Jetpack Joyride
+//  Start by equipping the "Beat the House" gadget combo, 
+//  then start a game round, activate this combo script by pressing the StartButton and leave on for a few hours to grind tons of coins!
+
+
+int led, currentled, run, HoldTime, RestTime, TurboButton, TurboButton2, b2enable, StartButton, ledBlink;
+init {
+//-------------------------------
+// Default Settings
+//-------------------------------
+//What is the button to turbo press?
+	TurboButton = PS3_CROSS
+	
+//Use a second button press?
+	b2enable = 0
+	
+//Which button as the 2nd button to turbo press (default)?
+	TurboButton2 = PS4_R2
+
+//Hold: How long to hold down the button to Turbo *in milliseconds*
+	HoldTime = 250
+	
+//Rest: How long to wait before pressing the Combo button again *in milliseconds*
+	RestTime = 250
+	
+//What is the button to use to start the automated turbo press?
+	StartButton = PS3_R3
+	
+//Allow script to blink the current player's controller LED in time with the turbo button presses?
+	ledBlink = 1
+
+
+//------------
+//END Defaults.
+//There is no more customizations to change further on.
+//------------
+
+//LED selection functionality copied from RubberBand script by vkrouso
+    led = 0;
+    reset_leds();
+    while(led<4){
+        if(get_led(led)==1) currentled = led;
+        led = led + 1;
+    }
+}
+
+main {
+//Select button:
+    // press - send to console
+    if(event_release(PS3_SELECT) && get_ptime(PS3_SELECT) < 160) {
+        combo_run(cpress);
+    } 
+    // hold - customize part of script
+    if(get_val(PS3_SELECT) && get_ptime(PS3_SELECT) > 160) { 
+        combo_run(customize);
+    }
+    // Completely block output to console from the controller. If button was pressed, then the press is recreated.
+    if(get_val(PS3_SELECT)) {
+        set_val(PS3_SELECT,0);
+    }
+
+//Run turbo combo
+    if(run) {combo_run(AutomatedCombo);}
+    
+    if(event_press(StartButton)) {run=!run; reset_leds();}
+
+}
+
+combo AutomatedCombo {
+//Press
+    set_val(TurboButton, 100);
+    if(ledBlink) {
+    	set_led(currentled, 1);
+	}
+	if(b2enable) { 
+       set_val(TurboButton2, 100);
+    }
+    wait(HoldTime);
+//Release
+    set_val(TurboButton, 0);
+    if(ledBlink) {
+    	set_led(currentled, 0);
+	}
+	if(b2enable) { 
+       set_val(TurboButton2, 0);
+    }
+    wait(RestTime);
+    set_val(TurboButton, 0);
+}
+
+combo cpress {
+    set_val(PS3_SELECT, 100);
+    wait(get_ptime(PS3_SELECT));
+    set_val(PS3_SELECT, 0);
+}
+
+combo customize {
+    if(event_press(PS3_L2)) {
+        HoldTime = 250;
+        RestTime = 250;
+        set_val(TRACE_6, 25);
+    }
+    if(event_press(PS3_R2)) {
+        HoldTime = 250;
+        RestTime = 4000;
+        set_val(TRACE_6, 4);
+    }
+    if(event_press(PS3_L1)) {
+        HoldTime = 250;
+        RestTime = RestTime - 250;
+        if(RestTime < 50) { RestTime = 50;}
+        set_val(TRACE_6, abs(RestTime / 100));
+    }
+    if(event_press(PS3_R1)) {
+        HoldTime = 250;
+        RestTime = RestTime + 250;
+        if(RestTime > 4000) { RestTime = 4000;}
+        set_val(TRACE_6, abs(RestTime / 100));
+    }
+}

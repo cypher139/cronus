@@ -1,0 +1,65 @@
+/*
+ ____  _   _      _          ____        _   _              
+/ ___|| |_(_) ___| | ___   _| __ ) _   _| |_| |_ ___  _ __  
+\___ \| __| |/ __| |/ / | | |  _ \| | | | __| __/ _ \| '_ \ 
+ ___) | |_| | (__|   <| |_| | |_) | |_| | |_| || (_) | | | |
+|____/ \__|_|\___|_|\_\\__, |____/ \__,_|\__|\__\___/|_| |_|
+                       |___/                                //v. 2.0 - 6/4/2020
+                       
+*/
+// Author: CypherNova139		----		Console: All		----		Controller: All		----		Script Usage: Accessiblity / Task Automation
+
+
+//Similar to "StickyKeys" on the computer, this script will hold down a button when that button is pressed, then release it when the button is pressed again. 
+//Useful for use in FPS games to hold down the Aim button, or use in Racing games to go full throttle!
+
+//-------------------------------
+// Controls
+//-------------------------------
+
+//Press the button to hold it, press again to not hold it.
+
+//To change the button to hold, specify it in the defaults below.
+
+// todo: add customize in-game.
+// Old v1 version: https://cronusmax.com/gpclib/?s=560
+
+int hold1, hold2, enable2, HoldButton1, HoldButton2, hb2Trigger;
+
+init { 
+//-------------------------------
+// Defaults
+//-------------------------------
+
+// What is the first button to hold when pressed?
+HoldButton1 = PS3_L1
+
+// What is the second button to hold when pressed??
+HoldButton2 = PS3_R1
+
+// Listen to the second button? 
+enable2 = 1
+
+// This button enables/disables holding second button when second button pressed:
+hb2Trigger = PS3_R3
+
+//-------------------------------
+}
+
+main {
+//Button #1
+	if(event_press(HoldButton1)) {hold1=!hold1}
+		
+	if(hold1) {
+	    set_val(HoldButton1, 100);
+	}
+	
+//Button #2	    
+	if(event_press(HoldButton2)) {hold2=!hold2}	
+	
+	if(enable2 && hold2) {
+	    set_val(HoldButton2, 100);
+	}
+//Enable / Disable holding Button #2
+	if(event_press(hb2Trigger)) {enable2=!enable2}
+}

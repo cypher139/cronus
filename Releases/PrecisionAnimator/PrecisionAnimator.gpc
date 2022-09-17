@@ -1,0 +1,370 @@
+/*
+ ____                _             _          _                 _             
+|  _ \ _ __ ___  ___(_)___  ___   / \   _ __ (_)_ __ ___   __ _| |_ ___  _ __ 
+| |_) | '__/ _ \/ __| / __|/ _ \ / _ \ | '_ \| | '_ ` _ \ / _` | __/ _ \| '__|
+|  __/| | |  __/ (__| \__ \  __// ___ \| | | | | | | | | | (_| | || (_) | |   
+|_|   |_|  \___|\___|_|___/\___/_/   \_\_| |_|_|_| |_| |_|\__,_|\__\___/|_|   
+                                                                  //v. 1.0-mecabsw 12/28/2019
+*/
+// Author: CypherNova139		----		Console: All		----		Controller: All		----		Script Usage: Task Automation
+
+// You know you want that cool, piloted drone camera view in your awesome game footage video.
+// Using a cinematic mod on your game such as http://cinetools.xyz/games/ and this script while you play LIVE with keyboard and mouse,
+//  you can get that cool look without having to use 4 hands to do 2 different things :)
+
+// Originally made for Mirror's Edge: Catalyst cinematics, this script is great for any cinematic adventures of yours,
+//  where you need to hold a VERY steady position on the stick to turn the camera VERY cinematically smooth.
+
+// What this script does is what I've called "Active Stick Positioning".
+// First you save the stick position you are currently holding on the controller,
+// Second, when you are ready to use it, enable the positioning and this script will keep sending that exact saved stick position to the console,
+//  allowing you to hold a VERY steady camera view effortlessly.
+
+// This concept also works well in Angry Birds: Star Wars, for consistently holding the exact same aim trajectory every time effortlessly.
+
+// Try this script out in any game you choose, I'm curious to see what games this ends up getting used for :D
+
+//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// --- Features:
+//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Get that cool, piloted drone camera view in your awesome game footage video.
+// Achieve consistent aim trajectories for the very precise 3-star shots in Angry Birds: Star Wars.
+
+
+//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// --- Controls:
+//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// While playing:
+
+//           X (default): If pressed Disable active stick positioning. *(if cross override option active)
+//                    /\: Enable/Disable active stick positioning (Use Stick position #1)
+//                           A short rumble indicates script enabled - console is seeing the unwavering saved stick positions.
+//                    []: Enable/Disable active stick positioning (Use Stick position #2)
+//                           A short rumble indicates script enabled - console is seeing only the saved stick positions.
+//                    L1: Save Stick Position #2
+//                           2 short rumbles indicates save success.
+//                    R1: Save Stick Position #1
+//                           2 short rumbles indicates save success.
+//                 D-Pad: Adjust active stick positioning: *(if mode setting is 5)
+//              D-Pad Up: Add 1 degree to the Y axis.
+//            D-Pad Down: Remove 1 degree to the Y axis.
+//            D-Pad Left: Remove 1 degree to the X axis.
+//           D-Pad Right: Add 1 degree to the X axis.
+//  Left stick (default): Stick to automatically take control over for the precision piloting.
+// Sixaxis Tilt (X axis): Enable Active Stick Positioning. *(If sixaxis toggle option active) (Press /\ to disable an enabled stick position.)
+
+//  While holding Select:
+//    Start: Change Active Stick Positioning Mode.
+// Touchpad: Setup to use the original script controls used for cinematics on Mirror's Edge: Catalyst. (touch to save, r3 enable)
+//       R3: Setup to use for Angry Birds: Star Wars precise aim trajectories.
+//       /\: Load saved axis positions from persistent memory into the currently used stick position.
+//       []: Save current axis positions into persistent memory.
+//       L2: Enable/Disable Sixaxis tilt enable trigger.
+//       L3: Toggle the Enable/Disable button for usage of Stick Position #2
+
+
+//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// --- Notes:
+//+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+// Angry Birds: Star Wars users:
+// Find stick values Cypher successfully used for some levels at:
+// https://docs.google.com/spreadsheets/d/1UQbs2TpgndVvZq7AADVF5RFdxaPBgyJAvDbd1Ye0AF8/edit?usp=sharing
+
+
+//TRACE values:
+//TRACE_1 : enabled/disabled
+//TRACE_2 : active setting's LX
+//TRACE_3 : active setting's LY
+//TRACE_4 : active setting's RX
+//TRACE_5 : active setting's RY
+
+define deadzone_val = 20;
+
+int enable, mode, axisLX, axisLY, axisRX, axisRY, saveButton1, saveButton2, enableButton1, enableButton2, cO, cOButton, sO, e2, aM, savedAxis[7];
+
+init {
+//-------------------------------
+// Default Settings
+//-------------------------------
+// Change these settings to your liking, i.e. what you need loaded by default when you first activate this script.
+
+// Active Stick Positioning Mode Setup:
+// 1 - Left Stick only
+// 2 - Right Stick only
+// 3 - Left and Right Stick
+// 4 - unused (runs same as 3)
+// 5 - Dev Mode: Left Stick only, dpad adjusts position
+	mode = 5
+
+// Button to press to save positions
+	saveButton1 = PS4_R1;
+	saveButton2 = PS4_L1;
+
+// Button to Enable/Disable Active Stick Positioning
+	enableButton1 = PS4_TRIANGLE;
+	enableButton2 = PS4_SQUARE;
+
+// Enable/Disable: Script stops moving sticks if a override button is pressed.
+	cO = TRUE
+// If this button is pressed, Active Stick Positioning is disabled.
+	cOButton = PS4_CROSS
+
+// Sixaxis: Tilt the controller sideways to Enable Active Stick Positioning?
+	sO = FALSE
+
+//-------------------------------
+// Advanced Settings
+//-------------------------------
+// Setup left and right stick axises to use
+   	axisLX = PS4_LX
+    axisLY = PS4_LY
+	axisRX = PS4_RX
+    axisRY = PS4_RY
+
+// Enable Usage of 2nd stick position
+    e2 = 0
+}
+
+//-------------------------------
+// Script Begins!
+//-------------------------------
+
+main {
+   // User Customization Mode Activation:
+   // Customization Button Pressed.
+    if(event_release(1) && get_ptime(1) < 150) {
+        combo_run(cpress);
+    } 
+    // Customization Button Held, Activate User Customization Mode
+    if(get_val(1) && get_ptime(1) > 150) { 
+        combo_run(customize);
+    }
+    // Block Activation Button Output. If button was pressed, then the press is recreated.
+    if(get_val(1)) {set_val(1,0);}
+ 
+//Enable stick override
+	//Normal button
+    if(event_press(enableButton1)) {
+    	enable = !enable;
+    	aM = 0;
+    	if(enable == 1) {combo_run(Rumble1);}	
+    }
+    if(event_press(enableButton2) && e2 == 1) {
+    	enable = !enable;
+    	aM = 4;
+    	if(enable == 1) {combo_run(Rumble1);}	
+    }
+	//Sixaxis trigger
+	if(sO) {
+	    if(get_val(PS4_ACCX) > -18 ^^ get_val(PS4_ACCX) < 18) {
+	     	enable = 1;
+	     	aM = 0;
+	    }
+    }
+/*
+    //Sixaxis Y active
+    if(get_val(PS4_ACCY) > -18 ^^ get_val(PS4_ACCY) < 18) {
+     	sA = 1;
+    } else {
+		sA = 0;
+	}
+	*/
+	//Cross Override
+	if(event_release(cOButton) && cO) {
+		enable = 0;
+	}
+
+	
+//Save current axis position
+	if(get_val(axisLX) >-10 ^^ get_val(axisLX) < 10) {
+	    if(event_press(saveButton1)) {
+			manageSavedAxis(1);
+			set_val(saveButton1, 0);
+	    }
+	    if(event_press(saveButton2)) {
+			manageSavedAxis(2);
+			set_val(saveButton2, 0);
+	    }
+    }
+
+
+
+//Apply set positions and send to console
+    if(enable) {   	
+        if(mode == 1 || mode > 2) { 
+	       	set_val(axisLX, savedAxis[0 + aM]);
+	        set_val(axisLY, savedAxis[1 + aM]);
+	    }
+	    if(mode > 1 && mode < 5) { 
+			set_val(axisRX, savedAxis[2 + aM]);
+	        set_val(axisRY, savedAxis[3 + aM]);
+        }
+        if(mode == 5) {
+        //devmode
+/* 
+        if(event_press(13...16) {
+        	set_val(TRACE_6, 100);
+        	} else {set_val(TRACE_6, 4); }
+*/        
+			if(event_press(PS4_UP)) {
+				savedAxis[1 + aM] = savedAxis[1 + aM] + 1;
+			}
+			if(event_press(PS4_DOWN)) {
+				savedAxis[1 + aM] = savedAxis[1 + aM] - 1;
+			}
+			if(event_press(PS4_LEFT)) {
+				savedAxis[0 + aM] = savedAxis[0 + aM] - 1;
+			}
+			if(event_press(PS4_RIGHT)) {
+				savedAxis[0 + aM] = savedAxis[0 + aM] + 1;
+			}	
+		}
+    }
+
+set_val(TRACE_1, enable); 
+updatetrace();
+}
+
+combo customize {
+// Presets
+
+	if(event_press(PS4_TOUCH)) {
+	//me:C cinematics
+		cO = 0
+		mode = 3
+		saveButton1 = PS4_TOUCH
+		enableButton1 = PS4_R3
+	}
+	if(event_press(PS4_R3)) {
+	//absw
+		cO = 1
+		mode = 1
+		saveButton1 = PS4_R1
+		saveButton2 = PS4_L1
+		enableButton1 = PS4_TRIANGLE
+		enableButton2 = PS4_SQUARE
+	}
+	
+/*	
+    if(event_press(saveButton1)) {
+		manageSavedAxis(3);
+    }
+    if(event_press(saveButton2)) {
+		manageSavedAxis(4);
+    }
+*/	
+	
+// Mode Select
+    if(event_press(PS3_START)) {
+        if(mode < 5) {
+    		mode = mode + 1;
+    		combo_run(Rumble1);
+		} else {
+			mode = 0;
+		}
+        set_val(TRACE_6, mode);
+    }
+    //Setup to enable/disable sixaxis enable
+    if(event_press(PS3_L2)) {
+        sO = !sO;
+        if(sO) {combo_run(Rumble1);}
+    } 
+// Enable Usage of 2nd stick position
+    if(event_press(PS3_L3)) {
+		e2 = !e2;
+    }
+    
+// Save/Load
+// Save current RAM stick positions to memory
+	if(event_press(PS4_SQUARE)) {
+	    set_pvar(SPVAR_1, savedAxis[0 + aM]);
+	    set_pvar(SPVAR_2, savedAxis[1 + aM]);
+	    set_pvar(SPVAR_3, savedAxis[2 + aM]);
+	    set_pvar(SPVAR_4, savedAxis[3 + aM]);
+	    combo_run(Rumble11);
+	}
+
+// Load saved stick positions from memory
+	if(event_press(PS4_TRIANGLE)) {
+        savedAxis[0 + aM] = get_pvar(SPVAR_1, -100, 100, 0);
+        savedAxis[1 + aM] = get_pvar(SPVAR_2, -100, 100, 0);
+        savedAxis[2 + aM] = get_pvar(SPVAR_3, -100, 100, 0);
+        savedAxis[3 + aM] = get_pvar(SPVAR_4, -100, 100, 0);
+        updatetrace();
+        combo_run(Rumble1);
+    }
+    
+//Disable commands to console while selecting script options
+    set_val(0, 0);
+    set_val(2, 0);
+    set_val(3, 0);
+    set_val(4, 0);
+    set_val(5, 0);
+    set_val(6, 0);
+    set_val(7, 0);
+    set_val(8, 0);
+    set_val(13, 0);
+    set_val(14, 0);
+    set_val(15, 0);
+    set_val(16, 0);
+    set_val(17, 0);
+    set_val(18, 0);
+    set_val(19, 0);
+    set_val(20, 0);
+    set_val(27, 0);
+}
+
+
+combo Rumble1 { 
+    // 1 short rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo Rumble11 { 
+    // 1 short rumble, 1 long rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+    wait(250);
+    set_rumble(RUMBLE_B, 100);
+    wait(400);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo cpress {
+    set_val(PS3_SELECT, 100);
+    wait(get_ptime(PS3_SELECT));
+    set_val(PS3_SELECT, 0);
+}  
+
+function updatetrace() {
+    set_val(TRACE_2, savedAxis[0 + aM]);
+	set_val(TRACE_3, savedAxis[1 + aM]);
+	set_val(TRACE_4, savedAxis[2 + aM]);
+	set_val(TRACE_5, savedAxis[3 + aM]);
+}
+
+function manageSavedAxis(_m) {
+	set_val(TRACE_6, 72)
+//save current
+	if(_m == 1) {
+	    savedAxis[0] = get_val(axisLX);
+	    savedAxis[1] = get_val(axisLY);
+	    savedAxis[2] = get_val(axisRX);
+	    savedAxis[3] = get_val(axisRY);
+	   	combo_run(Rumble11);
+	    set_val(TRACE_6, 73)
+	}
+	if(_m == 2) {
+	    savedAxis[4] = get_val(axisLX);
+	    savedAxis[5] = get_val(axisLY);
+	    savedAxis[6] = get_val(axisRX);
+	    savedAxis[7] = get_val(axisRY);
+	    combo_run(Rumble11);
+	    set_val(TRACE_6, 74)
+	}
+    updatetrace();	
+}

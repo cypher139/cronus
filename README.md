@@ -1,6 +1,8 @@
 # Cypher's CronusMAX Scripts  
-  
-CypherNova139's repository of his custom CronusMAX scripts, mirrored here in case GPC Library site goes down again.  
+ 
+[CronusMAX](https://cronusmax.com) is a controller addon for PS3, 360, PS4, XB1 that is programmable in a custom C-esque language called GPC, allowing you to automate and remap various controller actions.  
+ 
+CypherNova139's repository of his custom CronusMAX GPC scripts, mirrored here in case GPC Library site goes down again.  
   
 Fan favorite (and my favorites too) scripts include:  
  - Inversion  

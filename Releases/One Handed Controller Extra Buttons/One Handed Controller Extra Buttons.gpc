@@ -1,0 +1,186 @@
+/*
+  ___               _   _                 _          _
+ / _ \ _ __   ___  | | | | __ _ _ __   __| | ___  __| |
+| | | | '_ \ / _ \ | |_| |/ _` | '_ \ / _` |/ _ \/ _` |
+| |_| | | | |  __/ |  _  | (_| | | | | (_| |  __/ (_| |
+ \___/|_| |_|\___| |_| |_|\__,_|_| |_|\__,_|\___|\__,_|
+                       Extra Buttons       // v. 1.0 - 1/1/2022
+
+// Author: CypherNova139		----		Console: All		----		Controller: PS3 Nav Controller, Wiimote, XB1 Elite		----		Script Usage: Accesibility
+
+ Do you have a need to press controller buttons that are not physically present on a controller used with only one hand? 
+ With this script you can now access those "missing" buttons via simple button remapping.
+
+
+ //-------------------------------\\
+              Features
+ \\-------------------------------//
+  Temporarily remap buttons not physically present on a One-Handed controller to buttons that are present.
+  (Optional) L2, Left, Right stick axises only activate on full axis usage (99 or 100).
+
+
+ //-------------------------------\\
+              Controls
+ \\-------------------------------//
+  Hold L1 (PS3Nav/XB1 Elite), B (Wiimote) to switch to buttons not physically present on the one handed controller. 
+     Remaps are specified in setControllerIDs function below.
+
+
+ //-------------------------------\\
+         Controller Support
+ \\-------------------------------//
+  Supported:
+   PS3 Navigation Controller
+
+  Supported, but not personally tested:
+   Wii Remote, XB1 Elite controller.
+
+  Not Really Supported:
+   Two-Handed controllers (There aren't really any buttons on these that this script concentrates on remapping.)
+
+*/
+
+int useStickSwap, useBigDeadzone, controlIDs[15];
+
+init {
+setControllerIDs();
+//-------------------------------\\
+//   Default Settings
+//-------------------------------//
+// Change these settings to your liking, i.e. what you need loaded by default when you first activate this script.
+
+// ------\================================
+//  [I]   \   Optional Settings
+// --------\==============================
+
+//Swap Left / Right Thumbsticks
+useStickSwap = 1
+
+// Toggle Big Deadzone for Stick / Trigger Axises
+//1 = Activate deadzone for L2, Left stick
+//2 = Activate deadzone for L2, Right stick only
+useBigDeadzone = 2
+
+
+// ------\================================
+//  [II]  \   Button Overrides
+// --------\==============================
+
+//Set the button that initiates remaps to a custom button:
+//controlIDs[0] = PS3_L2
+}
+
+main {
+	if(get_val(controlIDs[0])) {
+	    set_val(controlIDs[0], 0)
+    //Button swaps. Odd = Physical button, even = swap to non-present button
+        swap(controlIDs[1], controlIDs[2]);
+        swap(controlIDs[3], controlIDs[4]);
+        swap(controlIDs[5], controlIDs[6]);
+        swap(controlIDs[7], controlIDs[8]);
+        swap(controlIDs[9], controlIDs[10]);
+        swap(controlIDs[11], controlIDs[12]);
+        swap(controlIDs[13], controlIDs[14]);
+   	// Stick swaps, swap Left for Right stick
+       	if(useStickSwap) {
+       		swap(10, 12);
+       		swap(9, 11);
+   		}
+    }
+	if(useBigDeadzone > 0) {
+		if(get_val(PS3_L2) < 99) {set_val(PS3_L2, 0)}
+		if(useBigDeadzone != 2) {
+			if(abs(get_val(PS3_LY)) < 99) {set_val(PS3_LY, 0)}
+			if(abs(get_val(PS3_LX)) < 99) {set_val(PS3_LX, 0)}
+		}
+		if(abs(get_val(PS3_RY)) < 99) {set_val(PS3_RY, 0)}
+		if(abs(get_val(PS3_RX)) < 99) {set_val(PS3_RX, 0)}
+	}   
+}
+
+function setControllerIDs() {
+//PS3Nav
+	if(get_controller() == (1 || 2 || 4)) {
+	set_val(TRACE_6, 1)
+	//0 = swap button
+	//1 = physical button, 2 == change to, 3, next physical button, 4 == change to, etc
+	controlIDs[0] = PS3_L1
+	
+	controlIDs[1] = PS3_LEFT
+	controlIDs[2] = PS3_SQUARE
+	
+	controlIDs[3] = PS3_UP
+	controlIDs[4] = PS3_TRIANGLE
+	
+	controlIDs[5] = PS3_RIGHT
+	controlIDs[6] = PS3_R1
+	
+	controlIDs[7] = PS3_DOWN
+	controlIDs[8] = PS3_R2
+	
+	controlIDs[9] = PS3_PS
+	controlIDs[10] = PS3_R3
+	
+	controlIDs[11] = PS3_CROSS
+	controlIDs[12] = PS3_SELECT
+	
+	controlIDs[13] = PS3_CIRCLE
+	controlIDs[14] = PS3_START
+	}
+//Wii
+	if(get_controller() == 3) {
+	set_val(TRACE_6, 3)
+	//0 = swap button
+	//1 = physical button, 2 == change to, 3, next physical button, 4 == change to, etc
+	controlIDs[0] = WII_B
+	
+	controlIDs[1] = WII_LEFT
+	controlIDs[2] = PS3_SQUARE
+	
+	controlIDs[3] = WII_UP
+	controlIDs[4] = PS3_TRIANGLE
+	
+	controlIDs[5] = WII_RIGHT
+	controlIDs[6] = PS3_R1
+	
+	controlIDs[7] = WII_DOWN
+	controlIDs[8] = PS3_R2
+	
+	controlIDs[9] = WII_A
+	controlIDs[10] = PS3_R3
+	
+	controlIDs[11] = WII_MINUS
+	controlIDs[12] = 6
+	
+	controlIDs[13] = WII_PLUS
+	controlIDs[14] = 7
+	}
+//XB1 Elite
+	if(get_controller() == 5) {
+	set_val(TRACE_6, 5)
+	//0 = swap button
+	//1 = physical button, 2 == change to, 3, next physical button, 4 == change to, etc
+	controlIDs[0] = XB1_LB
+	
+	controlIDs[1] = XB1_LEFT
+	controlIDs[2] = XB1_X
+	
+	controlIDs[3] = XB1_UP
+	controlIDs[4] = XB1_Y
+	
+	controlIDs[5] = XB1_RIGHT
+	controlIDs[6] = XB1_RB
+	
+	controlIDs[7] = XB1_DOWN
+	controlIDs[8] = XB1_RT
+	
+	controlIDs[9] = XB1_LS
+	controlIDs[10] = XB1_RS
+	
+	controlIDs[11] = XB1_PL1
+	controlIDs[12] = XB1_VIEW
+	
+	controlIDs[13] = XB1_PL2
+	controlIDs[14] = XB1_MENU
+	}
+}

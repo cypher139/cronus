@@ -1,0 +1,73 @@
+/*                                 
+ _____                 _         _ 
+|     |___ _ _ ___ ___| |_ ___ _| |
+|-   -|   | | | -_|  _|  _| -_| . |
+|_____|_|_|\_/|___|_| |_| |___|___|
+                                                                         
+                                   Throttle and Brake
+                                   //v 0.7 - 4/13/2019
+                                        
+// Author: CypherNova139		----		Console: All		----		Controller: All		----		Script Usage: Accessibility / Task Automation
+*/
+
+//-------------------------------
+// Introduction
+//-------------------------------
+
+//  This is a quick script to constantly apply throttle until you press said throttle button. The further you press it the more you let off the throttle and holding it down completely lets off.
+//  I just thought it could potentially save some aching. It would not feel natural at all, especially after years of driving and racing games, and I don't know if I would stay with it beyond maybe trying it for a lap or two.
+
+//-------------------------------
+// Controls
+//-------------------------------
+
+//              R3: Switch between Disable inversion, Enable: hold Throttle, Enable hold Brake.
+//  L3 (hold) + R3: Burnout mode: Enabled for both Throttle and Brake.
+
+
+
+int Throttle, Brake, EnableT, EnableB, Mode;
+
+init {
+//-------------------------------
+// Default Settings
+//-------------------------------
+	Throttle = PS3_R2
+	Brake = PS3_L2
+	Mode = 1
+//----------------------------------------------
+// There is no need to change anything else!
+
+//Initial script setup:	
+	ModeSwitch();
+}
+
+main {
+	if(EnableT) {
+		set_val(Throttle, 100 - get_val(Throttle));
+	}
+	if(EnableB) {
+		set_val(Brake, 100 - get_val(Brake)); 
+	}
+	if(event_release(PS3_R3)) {
+		Mode = Mode + 1
+		if(Mode > 2) {Mode = 0}
+		if(get_val(PS3_L3)) {
+			Mode = 3
+		}
+		ModeSwitch();
+		set_val(TRACE_1, Mode)
+		set_val(TRACE_2, EnableT)
+		set_val(TRACE_3, EnableB)
+	}
+}
+
+function ModeSwitch() {
+	if(Mode == 1 || Mode > 2) {
+		EnableT = 1
+		
+	} else { EnableT = 0 }
+	if(Mode > 1) {
+		EnableB = 1
+	} else { EnableB = 0 }
+}

@@ -1,0 +1,169 @@
+/*
+ ____                    _   _____          _                   
+|  _ \  ___  _ __  _   _| |_|  ___|_ _  ___| |_ ___  _ __ _   _ 
+| | | |/ _ \| '_ \| | | | __| |_ / _` |/ __| __/ _ \| '__| | | |
+| |_| | (_) | | | | |_| | |_|  _| (_| | (__| || (_) | |  | |_| |
+|____/ \___/|_| |_|\__,_|\__|_|  \__,_|\___|\__\___/|_|   \__, |
+                                                          |___/  //v. 1.7 - 6/4/2020
+*/    
+// Author: CypherNova139		----		Console: All		----		Controller: All*		----		Script Usage: Task Automation / Fun
+//																			* Wiimote requires a Nunchuk/Pro controller
+
+
+//Ever wanted to drive your racing car in circles for fun? 
+//Do some games inadvertently offer you a reward for this behavior, such as Rocket League's 500km (now 50km) miles driven, or NFS: Most Wanted (2012) - drifting in circles to unlock certain mods?
+
+//To help you with that long drive, this script will drive your car in circles (or donuts...) for you in nearly any racing game!
+//Just start driving your car in a continuous loop, then press R3 to save and keep using the current Steering and Throttle position!
+//(Also supports saving and using current Boost and Pitch position as well)
+
+//New: Burnout feature! Holds down both Throttle and Brake for you. This should help with idling in NFS:MW
+//New: Rumble block!
+//New: Boost button and Pitch axis
+
+//-------------------------------
+// Controls
+//-------------------------------
+//                                       R3 : Enable/Disable AutoDrive Stick and Throttle buttons.
+//                                                A short vibration confirms a successful enable, no vibration confirms a successful disable.
+//  R3 + Holding Steering Axis and Throttle : Press to set Steering, Throttle, Boost, and Pitch positions to use, from the current values being pressed on the controller.
+//                                                A short then longer vibration confirms and enables the new set values.
+//                                       L3 : Start a burnout
+//                           R1 (hold) + L1 : Enable/disable rumble
+//                 R1 (hold) + Triangle / Y : Enable/disable Pitch Axis
+
+//-------------------------------
+// Games tested
+//-------------------------------
+
+// Burnout Paradise: Drift to acquire miles
+// NFS: Most Wanted (2012): Drift to grind requirements for multiplayer car mods, burnout to avoid multiplayer inactivity timeout, once again for MP mod grinding.
+// Rocket League: Donuts to drive 50km
+
+//-------------------------------
+// Other Notes
+//-------------------------------
+
+//TRACE_1 : AutoDrive enabled/disabled
+//TRACE_2 : Set value for Steering Axis.
+//TRACE_3 : Set value for Throttle.
+//TRACE_4 : Set value for Pitch Axis.
+//TRACE_5 : Set value for Boost.
+//TRACE_6 : (1st digit) Burnout on/off. (2nd digit) Pitch Axis on/off. (3rd digit) Rumble on/off.
+
+//Preset: 
+// Burnout Paradise: Using car SI-7: LX -82. Drifting in airfield, slower speed
+
+
+int enable, deadzone_val, SteeringAxis, PitchAxis, usePitch, Throttle, Brake, setSteeringAxis, setPitchAxis, setThrottle, startTrigger, setBoost, Boost, burnoutTrigger, burnout, useRumble;
+
+init {
+//-------------------------------
+// Defaults
+//-------------------------------
+
+//Your game's controls:
+	Throttle = PS4_R2;
+	
+	Brake = PS4_L2;
+	
+	Boost = PS4_CROSS;
+	
+	SteeringAxis = PS4_LX;
+	
+	PitchAxis = PS4_LY;
+	
+//Use "Pitch" axis (i.e. Y axis Up/down)	
+	usePitch = FALSE;
+
+//Enable rumble?
+	useRumble = TRUE;
+
+//Button to press to save positions & start loop
+	startTrigger = PS4_R3;
+
+//Button to press to hold Throttle and Brake - do a Burnout!
+	burnoutTrigger = PS4_L3;
+
+//Steering Axis must be moved this much to be considered eligible to save steering position. (i.e. Deadzone)
+	deadzone_val = 20;
+
+//-------------------------------
+}
+
+main {
+
+//Burnout!      
+    if(event_press(burnoutTrigger)) {burnout=!burnout}
+    if(burnout) {
+		set_val(Throttle, 100);
+		set_val(Brake, 100);
+    }
+
+//Set Throttle/steering positions
+    if(event_press(startTrigger)) {
+        enable = !enable;
+	//Record Steering and Throttle positions, and Boost if used.
+        if(get_val(SteeringAxis) > inv(deadzone_val) ^^ get_val(SteeringAxis) < deadzone_val) {
+            if(get_val(Throttle)) {
+                enable = 1;
+                setSteeringAxis = get_val(SteeringAxis);
+                if(usePitch) {
+                	setPitchAxis = get_val(PitchAxis);
+            	}
+                setThrottle = get_val(Throttle);
+                setBoost = get_val(Boost);
+                combo_run(Rumble11);
+            }
+        }
+        set_val(TRACE_2, setSteeringAxis);
+        set_val(TRACE_3, setThrottle);
+        set_val(TRACE_4, setPitchAxis);
+        set_val(TRACE_5, setBoost);
+        if(enable == 1) { combo_run(Rumble1);}
+    }
+//Apply set positions
+    if(enable) {
+        set_val(SteeringAxis, setSteeringAxis);
+        set_val(Throttle, setThrottle);
+        set_val(Boost, setBoost);
+        if(usePitch) {
+        	set_val(PitchAxis, setPitchAxis);
+    	}	
+    }
+
+set_val(TRACE_1, enable)
+set_val(TRACE_6, burnout * 100 + usePitch * 10 + useRumble) 
+
+//Rumble blocking / Pitch axis toggle
+     if(get_val(3)){
+        if(event_press(6)){
+            useRumble=!useRumble; 
+            set_val(6, 0);
+        }
+        if(event_press(17)){
+            usePitch=!usePitch; 
+            set_val(17, 0);
+        }
+    }
+//Apply Rumble Toggle
+    if(useRumble == 0) { block_rumble();}
+}
+
+combo Rumble1 { 
+    // 1 short rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo Rumble11 { 
+    // 1 short rumble, 1 long rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+    wait(250);
+    set_rumble(RUMBLE_B, 100);
+    wait(400);
+    set_rumble(RUMBLE_B, 0);
+}

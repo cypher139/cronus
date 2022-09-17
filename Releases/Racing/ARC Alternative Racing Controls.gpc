@@ -1,0 +1,362 @@
+/*
+       _    ____   ____ 
+      / \  |  _ \ / ___|
+     / _ \ | |_) | |    
+    / ___ \|  _ <| |___ 
+   /_/   \_\_| \_\\____|
+  Alternative Racing Controls
+                                //v. 3.0 - 5/1/2021
+
+// Author: CypherNova139		----		Console: All		----		Controller: All		----		Script Usage: Accesibility                     
+
+
+   Do you like using up and down on the analog stick to adjust the speed of your car?
+    This remaps a thumbstick stick Y axis (Up/Down) to Throttle and Brake buttons in a racing game.
+ 
+   Also features a system dubbed "ADS" to help maintain a drifting line if needed.
+
+ //-------------------------------\\
+              Features
+ \\-------------------------------//
+ 
+ Use Up/Down on a Analog axis (such as a thumbstick) for Throttle and Brake in a racing game.
+ Any controller is supported - no editing required.
+ - Use R2/L2 (RT/LT) or X/[] (A/X) buttons as throttle/brake.
+ - Use either analog stick's up/down to drive.
+ - Enable or disable sending the analog stick's Y axis to console - useful to still be able to adjust rider lean / vehicle pitch,  or prevent accidental adjusting if disabled.
+ - Supports remapping the PS4's touchpad to throttle/brake!
+ - New: supports remapping Up/Down Sixaxis to throttle/brake!
+ 
+ New: "ADS" moves the turning axis of the steering thumbstick automatically from 100 to 60 and back in a similar fashion as ABS on your car. This might help with drifting. 
+
+ //-------------------------------\\
+              Controls
+ \\-------------------------------//
+
+ Up on Right stick (default)   = Throttle / Acceleration / Gas
+ Down on Right stick (default) = Brakes
+
+ If ADS enabled:
+   Holding left/right above set threshold (default: 85% or more) on left stick (default) will "pump" the stick similar to ABS in a car. (stick moves from 100 to 60 and back to 100)
+   Hold L1 (default): Temporarily disable ADS while button is held, re-enables on release
+
+  While holding Select:
+   Configure Script Options in-game!
+            Circle / B = Enable/disable Throttle/Brake remap, in case the game is at a point where both sticks are expected as normal.
+                    L3 = Use the Left stick up/down as throttle/brake and left/right as steering.
+       L3 + Sixaxis Up = Use Sixaxis Up/Down as throttle/brake.
+                    R3 = Use the Right stick up/down as throttle/brake and left/right as steering.
+                 Start = Use the Left stick to steer, Right stick for Throttle/Brake.
+              Touchpad = Use the touchpad up/down as throttle/brake.
+          Triangle / Y = Enable/Disable sending Y axis press to console.
+                 X / A = Remap to X/[] (A/X) as the game's throttle/brake buttons.
+               R1 / RB = Enable/Disable hold a button down to activate "ADS" function
+               R2 / RT = Remap to R2/L2 (RT/LT) as the game's throttle/brake buttons.
+            Square / X = Enable/Disable ADS drift system.
+
+
+
+-------------------------------\\         
+       Extra Information:
+       
+ --- TRACE monitors: (0 = no, 1 = yes)
+ TRACE_1: (1st digit) Remap enabled (2nd digit) ADS enabled
+ TRACE_2: Axis ID of axis to remap to Throttle/Brake
+ TRACE_3: Axis ID of steering axis used for ADS
+ TRACE_5: Send Y axis to console enabled
+ TRACE_6: Debug
+-------------------------------//
+*/
+int useADS, adsI, adsKey, useADSKey, noadsKey, activeAxisRemap, activeAxisADS, dzC, dzH, useRemap, rmM, c1, c2, consoleY, throttle, brake;
+
+init {
+//-------------------------------\\
+//   Default Settings
+//-------------------------------//
+//Use TRUE or 1 to enable, FALSE or 0 to disable
+
+// ------\================================
+//  [I]   \   Basic Functions
+// --------\==============================
+
+//Enable the Throttle/Brake to Stick Up/Down remap at startup?
+    useRemap = TRUE
+    
+//Also, should we send the Y axis to the console?
+    consoleY = TRUE
+    
+//Certain axis types (Sixaxis) must be multipled to get a better response.
+// What multipler should be used for the Stick Up/Down axis application to throttle/brake?
+	rmM = 1
+    
+//Enable/Disable Automated Drift System ("pumps" Turning Axis from 100 to 60 and back like how ABS functions on a car)    
+    useADS = TRUE
+    useADSKey = TRUE
+
+// ------\================================
+//  [II]  \   Button / Axis Configuration
+// --------\==============================
+
+//What is the throttle and brake?
+//For most games this would be the triggers - L2/R2 / LT/RT. Older games may use the bottom left face buttons: X/[] / A/X
+    throttle = PS3_R2
+    brake = PS3_L2
+
+//Set this to the axis to listen to for remapping to Throttle/Brake.
+    activeAxisRemap = PS3_RY
+    
+//Set this to your game's steering axis, for use with "ADS" drift system
+    activeAxisADS = PS3_LX
+   
+//If you need to temporarily disable the ADS function, hold down this button:    
+    noadsKey = PS3_L1
+//If you need to only enable ADS during a drift, only enable ADS during holding the drift button: 
+    adsKey = PS3_CROSS
+
+     
+// ------\================================
+//  [III] \   Hardware Configuration
+// --------\==============================
+
+    //Controller deadzone
+    dzC = 15
+    //ADS: Minimum activation occurs at:
+    dzH = 85
+
+setTrace();
+if(rmM < 1) {rmM = 1}
+}
+
+main {
+//-------------------------------
+// Configure Button: Send press to console, or configure script settings? 
+//-------------------------------
+    // Configuration Button was Pressed.
+    if(event_release(1) && get_ptime(1) < 200) {
+        combo_run(createSelectPress);
+    } 
+    // Configuration Button was Held, Activate User Configuration Mode
+    if(get_val(1) && get_ptime(1) > 200) { 
+        combo_run(configure);
+    }
+    // Block Activation Button Output. If button was pressed, then the press is recreated.
+    if(get_val(1)) {set_val(1,0);}
+             
+      
+//-------------------------------
+// ADS : Automated Drift System
+//-------------------------------
+	if(useADS && !combo_running(configure)) {
+		if(abs(get_lval(activeAxisADS)) > dzH && !get_val(noadsKey)) {
+	  		if(get_val(activeAxisADS) < 0) {
+	  		//neg
+	  			adsI = -1
+				} else {
+			//pos
+				adsI = 1
+			}
+			if(useADSKey) {
+				if(get_val(adsKey) > dzH) {
+					combo_run(ads);
+					set_val(TRACE_6, 44)
+				} else {
+					set_val(TRACE_6, 40)
+				}
+			} else {
+				set_val(TRACE_6, 12)
+				combo_run(ads);
+			}
+		} else {
+		set_val(TRACE_6, 1)
+		combo_stop(ads);
+		}
+	}		
+
+//-------------------------------
+// Pedal butttons to Stick Remap
+//-------------------------------		
+	if(useRemap) {
+	    if(abs(get_val(activeAxisRemap)) > dzC) {
+	    	if(get_val(activeAxisRemap) < 0) {
+	      		//neg
+	      			c1 = abs(get_val(activeAxisRemap)) * rmM;
+	        		c2 = 0
+	        		if(c1 > 100) {c1 = 100;} 
+	  			} else {
+	  			//pos
+					c2 = get_val(activeAxisRemap) * rmM;
+	        		c1 = 0;
+	        		if(c2 > 100) {c2 = 100;} 
+				}
+			set_val(throttle, c1)
+			set_val(brake, c2)
+	        if(consoleY == 0) {
+	            set_val(activeAxisRemap, 0);
+	        }
+	    }
+	}
+}
+
+//-------------------------------
+// In-Game User Configuration
+//-------------------------------
+combo configure {
+	setTrace();
+// --- Script options	
+    if(event_press(XB360_B)) {useRemap=!useRemap;}
+    if(event_press(XB1_Y)) {consoleY=!consoleY;}
+    if(event_press(XB1_X)) {useADS=!useADS;}
+    if(event_press(PS3_R1)) {useADSKey=!useADSKey;}
+// --- Axis Options    
+//  Use left stick
+    if(event_press(PS3_L3)) {
+        activeAxisRemap = PS3_LY
+        activeAxisADS = PS3_LX
+        rmM = 1
+		if(abs(get_val(PS4_ACCY)) > 18) {
+            activeAxisRemap = PS4_ACCY
+            rmM = 4
+        }
+    }
+//  Use right stick
+    if(event_press(PS3_R3)) {
+        activeAxisRemap = PS3_RY
+        activeAxisADS = PS3_RX
+    }
+//  Use Left steer, right accel/brake
+    if(event_press(XB360_START)) {
+        activeAxisRemap = PS3_RY
+        activeAxisADS = PS3_LX
+    }
+//  Use Touchpad
+    if(event_press(PS4_TOUCH)) {
+        activeAxisRemap = PS4_TOUCHY
+        activeAxisADS = PS4_TOUCHX
+    }
+// --- Button Options    
+    if(event_press(PS3_CROSS)) {
+        throttle = PS3_CROSS
+        brake = PS3_SQUARE
+    }
+    if(event_press(PS3_R2)) {
+        throttle = PS3_R2
+        brake = PS3_L2
+    }
+    
+    set_val(0, 0);
+    set_val(2, 0);
+    set_val(3, 0);
+    set_val(4, 0);
+    set_val(5, 0);
+    set_val(6, 0);
+    set_val(7, 0);
+    set_val(8, 0);
+    set_val(13, 0);
+    set_val(14, 0);
+    set_val(15, 0);
+    set_val(16, 0);
+    set_val(17, 0);
+    set_val(18, 0);
+    set_val(19, 0);
+    set_val(20, 0);
+} 
+
+combo createSelectPress {
+//Recreate a Select button press
+	set_val(1, 100);
+	wait(get_ptime(1));
+	set_val(1, 0);
+}
+
+// Combo generated by MAX Combo Plugin.
+combo ads {
+	set_val(activeAxisADS, 100 * adsI);	
+	wait(50);	
+	set_val(activeAxisADS, 96 * adsI);	
+	wait(10);	
+	set_val(activeAxisADS, 86 * adsI);	
+	wait(10);	
+	set_val(activeAxisADS, 76 * adsI);	
+	wait(10);	
+	set_val(activeAxisADS, 65 * adsI);	
+	wait(10);	
+	set_val(activeAxisADS, 49 * adsI);	
+	wait(10);	
+	set_val(activeAxisADS, 31 * adsI);	
+	wait(10);
+	set_val(activeAxisADS, 0);
+	wait(90);	
+	set_val(activeAxisADS, 27 * adsI);	
+	wait(10);	
+	set_val(activeAxisADS, 36 * adsI);	
+	wait(10);	
+	set_val(activeAxisADS, 51 * adsI);	
+	wait(10);	
+	set_val(activeAxisADS, 67 * adsI);	
+	wait(10);	
+	set_val(activeAxisADS, 79 * adsI);	
+	wait(20);	
+	set_val(activeAxisADS, 96 * adsI);	
+	wait(20);	
+}
+
+function setTrace() {
+	set_val(TRACE_5, consoleY);
+	set_val(TRACE_1, useRemap * 10 + useADS);
+	set_val(TRACE_2, activeAxisRemap)
+	set_val(TRACE_3, activeAxisADS)
+}
+
+
+// Old version, slower curve
+/*
+combo adsversion1 {
+//set_val(activeAxisADS, 0);
+	set_val(activeAxisADS, 100 * adsI);
+	wait(200);
+	set_val(activeAxisADS, 98 * adsI);
+	wait(10);
+	set_val(activeAxisADS, 96 * adsI);
+	wait(20);
+	set_val(activeAxisADS, 92 * adsI);
+	wait(10);
+	set_val(activeAxisADS, 90 * adsI);
+	wait(90);
+	set_val(activeAxisADS, 87 * adsI);
+	wait(10);
+	set_val(activeAxisADS, 84 * adsI);
+	wait(30);
+	set_val(activeAxisADS, 80 * adsI);
+	wait(30);
+	set_val(activeAxisADS, 79 * adsI);
+	wait(70);
+	set_val(activeAxisADS, 75 * adsI);
+	wait(10);
+	set_val(activeAxisADS, 74 * adsI);
+	wait(120);
+	set_val(activeAxisADS, 63 * adsI);
+	wait(20);
+	set_val(activeAxisADS, 60 * adsI);
+	wait(290);
+	set_val(activeAxisADS, 63 * adsI);
+	wait(20);
+	set_val(activeAxisADS, 71 * adsI);
+	wait(30);
+	set_val(activeAxisADS, 75 * adsI);
+	wait(120);
+	set_val(activeAxisADS, 81 * adsI);
+	wait(30);
+	set_val(activeAxisADS, 85 * adsI);
+	wait(60);
+	set_val(activeAxisADS, 90 * adsI);
+	wait(10);
+	set_val(activeAxisADS, 92 * adsI);
+	wait(10);
+	set_val(activeAxisADS, 94 * adsI);
+	wait(10);
+	set_val(activeAxisADS, 96 * adsI);
+	wait(20);
+	set_val(activeAxisADS, 100 * adsI);
+	wait(10);
+}
+*/

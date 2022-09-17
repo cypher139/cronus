@@ -40,7 +40,8 @@ List of all scripts follows:
 - [One Handed Controller Extra Buttons](Releases/One%20Handed%20Controller%20Extra%20Buttons/One%20Handed%20Controller%20Extra%20Buttons.gpc)  
 *Remap buttons not present on one handed controllers to ones that are present. Used for remote on stage*  
 - [PrecisionAnimator](Releases/PrecisionAnimator/PrecisionAnimator.gpc)  
-*Intended to help automate character animation in ingame machinima scenes. Game in mind was ME:Catalyst with PC free camera mod*  
+	- *Intended to help automate character animation in ingame machinima scenes. Game in mind was ME:Catalyst with PC free camera mod*  
+	- *Also allows to adjust stick position in 1 degre increments, used for precise angle positioning in Angry Birds games.*   
 - [Thumbstick direction indicator using controller LEDs](Releases/misc/DirectionIndicator.gpc)  
 *Designed for PS3 controllers (needs DS4 update), intended for streamer facecams so viewers can tell exactly where thumbstick was pointing in a specific frame when trying to recrate a ingame move the streamer did*  
 - [Controller Rumble Test](Releases/misc/Controller%20Rumble%20Test.gpc)  

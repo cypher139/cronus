@@ -4,7 +4,7 @@
 | | | | '_ \ / _ \ | |_| |/ _` | '_ \ / _` |/ _ \/ _` |
 | |_| | | | |  __/ |  _  | (_| | | | | (_| |  __/ (_| |
  \___/|_| |_|\___| |_| |_|\__,_|_| |_|\__,_|\___|\__,_|
-                       Extra Buttons       // v. 1.0 - 1/1/2022
+                       Extra Buttons       // v. 1.1 - 9/22/2022
 
 // Author: CypherNova139		----		Console: All		----		Controller: PS3 Nav Controller, Wiimote, XB1 Elite		----		Script Usage: Accesibility
 
@@ -17,6 +17,7 @@
  \\-------------------------------//
   Temporarily remap buttons not physically present on a One-Handed controller to buttons that are present.
   (Optional) L2, Left, Right stick axises only activate on full axis usage (99 or 100).
+  (Optional) L2 press can be blocked from being sent to console if swap not occuring.
 
 
  //-------------------------------\\
@@ -40,7 +41,7 @@
 
 */
 
-int useStickSwap, useBigDeadzone, controlIDs[15];
+int useStickSwap, useBigDeadzone, useTriggerBlock, controlIDs[15];
 
 init {
 setControllerIDs();
@@ -60,6 +61,11 @@ useStickSwap = 1
 //1 = Activate deadzone for L2, Left stick
 //2 = Activate deadzone for L2, Right stick only
 useBigDeadzone = 2
+
+//Toggle Trigger response if swap not active.
+//0 = Unchanged
+//1 = If swap not active trigger press blocked from being sent to console.
+useTriggerBlock = 1
 
 
 // ------\================================
@@ -86,7 +92,11 @@ main {
        		swap(10, 12);
        		swap(9, 11);
    		}
-    }
+	} else {
+		if(useTriggerBlock) {
+			set_val(PS3_L2, 0)
+		}
+	}
 	if(useBigDeadzone > 0) {
 		if(get_val(PS3_L2) < 99) {set_val(PS3_L2, 0)}
 		if(useBigDeadzone != 2) {

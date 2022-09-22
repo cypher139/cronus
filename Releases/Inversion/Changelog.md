@@ -1,5 +1,17 @@
 ### Inversion
 
+###### 2.9 (9/22/22)
+Added:
+- Touchpad swap for DS4/DualSense on non-PS4/5 consoles - swap Touchpad press with Share, useful for mapping "select" button functionality. (Select+X to enable)
+- Automatic controller mapping fixes:
+	- PS3: Sixaxis inversion fix for PS4 controller usage on PS3. (PS4 Sixaxis Y & Z is inverted compared to PS3 / Wiimote)
+	- PS4/PS5/XB1/XSX/Switch: if using a different controller than what matches the console, the controller's Share button will be mapped to the expected Share button for the console in use.
+		- DS4 controller: Share button also handles script customizations; to long press Share use the provided alternate button combo.
+Fixes:
+- Alternate Share button combo (Home+Start) now sends the proper button for each console equipped with Share button functionality.  
+- Compile fixes for Zen (PS4_TOUCHX depreciated)
+Note: Using latest generation controllers and consoles (PS5/XSX/Switch) requires Zen.
+
 ###### 2.8 (1/18/21)
 Additions:
 - Improved upon Profiles setup:

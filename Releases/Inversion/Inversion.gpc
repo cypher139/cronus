@@ -4,7 +4,7 @@
   | || '_ \ \ / / _ \ '__/ __| |/ _ \| '_ \ 
   | || | | \ V /  __/ |  \__ \ | (_) | | | |
  |___|_| |_|\_/ \___|_|  |___/_|\___/|_| |_|
-                             (_)             //v 2.8 - 1/18/2021
+                             (_)             //v 2.9 - 9/22/2022
 
 // Author: CypherNova139		----		Console: All		----		Controller: See Below		----		Script Usage: Accessibility
 
@@ -12,9 +12,6 @@
  Sometimes my mind doesn't understand the game's camera controls, depending on the type of camera view (1st/3rd person) I'm currently viewing, so I ended up creating this handy script!
 
  "Inversion" allows you to change to normal or inverted camera controls at any time, without having to use the game's options menus, allowing for quick changes of camera controls to your preference.
-
- This handy script allows you to change to normal or inverted camera controls at any time, without having to use the game's options menus,
- allowing for quick changes of camera controls to your liking. Supports any controller!
 
  With this script you now have the ability to remap the stick directions, and swap other buttons as well!
 
@@ -31,9 +28,13 @@
  - Limit Pressure Sensitivity or Axis travel for a specified button or axis. (*not included in profile settings)
  - Profiles: Switch between 2 different saved script settings while in and without leaving gameplay.
  - Profile Sets: Choose between different sets of Profiles to load.
- - Profiles - Customizable Trigger Keys. Toggle betwen Proiles, or activate a specific one.
+ - Profiles - Customizable Trigger Keys. Toggle betwen Profiles, or activate a specific one.
                  * Also can require an additional axis check before switching running Profile.
- - (untested) Use PS Vita Screenshot button combo (Home + Start) to trigger PS4 SHARE menu.
+ - Use PS Vita Screenshot button combo (Home + Start) to trigger your console's "SHARE" menu (PS4/5, XB1/XSX, Switch).
+ - Automatically apply controller mapping fixes:
+    == PS3: Sixaxis inversion fix for PS4 controller usage on PS3. (PS4 Sixaxis Y & Z is inverted compared to PS3 / Wiimote)
+    == PS4/PS5/XB1/XSX/Switch: If using a different controller than what matches the console, the controller's Share button will be mapped to the expected Share button for the console in use.
+----
 
  //-------------------------------\\
               How To Use
@@ -61,12 +62,13 @@ Advanced:
  \\-------------------------------//
 
  Supported:
- PS3, PS4, XB360, XB1, Wii Remote + Nunchuk
+ PS3, PS4, PS5, XB360, XB1, XSX, Wii Remote + Nunchuk
 
  Supported, but not personally tested:
  Wii Remote + Pro controller
  Wii U Pro controller
  XB1 Elite Controller
+ Switch JoyCons / Pro controller
 
  Not Really Supported:
  Wii Remote (There aren't really any buttons on the Wiimote that this script concentrates on remapping.)
@@ -99,9 +101,8 @@ Advanced:
    Square / X :   Disable or Cycle through the mode in which the Sticks or certain Stick Axises are swapped.
             -----See defaults below for mode descriptions. (A rumble will indicate a sucessful mode change, except for 0/disabled. Changes are live immediately. Axis inversions are unaffected by swap.)
     Cross / A :   Enable/Disable Select/Start <-> Touchpad Left/Right press swap. Useful for PS4 games expecting the touchpad on non-DS4 controllers.
+  Cross (DS4) :   *If using a DS4/DualSense controller, Enable/Disable Touchpad press / Share button swap. Useful for remapping "select" button functionality on non-PS4 consoles.
             -----See defaults below for mode descriptions. (A rumble will indicate a sucessful mode change, except for 0/disabled. Changes are live immediately.)
-            -------*Note: Select/Start <-> Touchpad Left/Right press swap is disabled on DS4 controllers as it may adversly affect the Touchpad <-> Stick swap. 
-                          If Cross is pressed when using a DS4 controller this swap will always be turned off, allowing you to fix a previously set profile setting if needed. 2 Rumbles will indicate this condition.
    Circle / B :   Switch the current Profile *Set* in use.
             -----See defaults below for Profile Set descriptions. (A rumble will indicate a sucessful Profile Set change, except for Profile Set #1 - user saved settings in device memory. Changes are live immediately.)
    D-pad Down :   Enable/Disable an additional axis to check is in use when switching profiles. If enabled the configured axis must also be in use to switch profiles when the profile switch key is pressed.
@@ -126,7 +127,7 @@ Advanced:
  TRACE_6:  First Digit: Current Stick Swap mode
           Second Digit: Current Touchpad Swap mode
 */
-int invLY, invLX, invRY, invRX, psKey, psKeyP1, psKeyP2, psKeyAxis, psCheckAxis, psKeyAxis_DZ, profile, profileSet, triggerSwap, stickSwap, sL1, sL2, sR1, sR2, tL1, tL2, tR1, tR2, touchpadSwap, tp1, rumble, pressure, prKey, prLimit;
+int invLY, invLX, invRY, invRX, psKey, psKeyP1, psKeyP2, psKeyAxis, psCheckAxis, psKeyAxis_DZ, profile, profileSet, triggerSwap, stickSwap, sL1, sL2, sR1, sR2, tL1, tL2, tR1, tR2, touchpadSwap, sp1, tp1, rumble, pressure, prKey, prLimit, shareKey[7];
 
 init {
 //-------------------------------\\
@@ -180,7 +181,7 @@ init {
 //  Toggle Hotkeys:
 //-------------------------------//
 // When the configured button is pressed, the script will switch 'Profiles'. 
-// Note:   You can disable any unneeded Profile Switch Hotkey by changing the affected HotKey to the number 40. 
+// Note:   You can disable any unneeded Profile Switch Hotkey by changing the affected HotKey to the number 50. 
 
 
 // Toggle between Profile #1 & #2
@@ -245,13 +246,16 @@ init {
     stickSwap = 0
 
 //-------------------------------\\
-//  Touchpad to non-DS4
+//  Touchpad Swaps
 //-------------------------------//
-// Non-DS4 controllers: Are you playing a PS4 game requiring touchpad clicks on left or right of touchpad? (Examples: PS2-on-PS4 titles)
-// *Do not use this specific feature (leave at 0) with a DS4 controller as it is not needed*
+// **Non-DS4 controllers:**
+// Are you playing a PS4 game requiring touchpad clicks on left or right of touchpad? (Examples: PS2-on-PS4 titles)
 // 0 = Unchanged.
 // 1 = Swap Select/Start for Touchpad Left/Right press.
 // 2 = Swap Select for Touchpad Left press.
+
+// DS4 controllers / DualSense controllers:
+// 3 = (DS4/DualSense only) Swap SHARE button and Touchpad press.
 	touchpadSwap = 0
 	
 	
@@ -264,8 +268,8 @@ init {
 	prKey = PS3_SQUARE
 // Select the Limit of Axis Travel. Axis values sent to console for this axis will only go as high as this number. 
 	prLimit = 50
-	
-	
+
+
 //----------------------------------------------
 // There is no need to change anything else!
 
@@ -274,11 +278,27 @@ init {
 	loadTriggerSwap();
 	loadStickSwap();
 	setTrace();
+//Setup console's Share button ID
+	// Disconnected / PS3 / 360 / Wii does not have Share menu or dedicated controller Share button. Sharekey set to 50.
+	// Certain Mods to PS3 and 360 consoles add screenshot functionality, keycombos are listed in comments but are not currently functional in this script.
+	shareKey[0] = 50
+	//PS3 (L2 + R2 + Select + Start)
+	shareKey[1] = 50
+	//360 (Activator (Hold) = Start, Trigger = Back)
+	shareKey[2] = 50
+	//Wii
+	shareKey[3] = 50
+	//PS4/5
+	shareKey[4] = 1
+	//XB1/XSX
+	shareKey[5] = 21
+	//Switch
+	shareKey[6] = 27
 }
 
 main {
 //Reset leds after customizing script
-    if(get_val(1) != 100) {
+	if(event_release(1)) {
         reset_leds();
     }
 
@@ -288,7 +308,7 @@ main {
     // Configuration Button was Pressed.
     if(event_release(1) && get_ptime(1) < 200) {
 	//	Touchpad Left swap
-		if(touchpadSwap > 0) {
+		if(touchpadSwap == 1 || touchpadSwap == 2) {
 			tp1 = -85
 			combo_run(createTouchpadPress);
 		} else {
@@ -296,13 +316,9 @@ main {
 		}
     } 
     // Configuration Button was Held, Activate User Configuration Mode
-    if(get_val(1) && get_ptime(1) > 200) { 
-        combo_run(configure);
-    }
+    if(get_val(1) && get_ptime(1) > 200) {combo_run(configure);}
     // Block Activation Button Output. If button was pressed, then the press is recreated.
-    if(get_val(1)) {
-		set_val(1, 0);
-    }
+    if(get_val(1)) {set_val(1, 0);}
 
 //-------------------------------
 // Axis Inversions
@@ -322,7 +338,7 @@ main {
 	// SHARE buttton workaround
 	//-------------------------------
 		if(get_val(2) && get_val(0)) {
-				set_val(PS4_SHARE, 100);
+				set_val(shareKey[get_console()], 100);
 				set_val(0, 0);
 				set_val(2, 0);
 		}
@@ -340,13 +356,13 @@ main {
 	    if(touchpadSwap == 1) {
 			set_val(2, 0);
 	    }
-	
+	    
 	//-------------------------------
 	// Profile Switch Hotkey: Switches profiles while in gameplay
 	//-------------------------------
-	   if(event_press(psKey) && psKey < 30) {switchprofiles(0);}
-	   if(event_press(psKeyP1) && psKeyP1 < 30) {switchprofiles(1);}
-	   if(event_press(psKeyP2) && psKeyP2 < 30) {switchprofiles(2);}
+	   if(event_press(psKey) && psKey < 38) {switchprofiles(0);}
+	   if(event_press(psKeyP1) && psKeyP1 < 38) {switchprofiles(1);}
+	   if(event_press(psKeyP2) && psKeyP2 < 38) {switchprofiles(2);}
 	
 	//-------------------------------
 	// Run Trigger Swaps
@@ -377,9 +393,45 @@ main {
   					set_val(prKey, prLimit)
 				}
 			}
-		}
-//--------------		
+		}	
     }
+
+//-------------------------------
+// Controller Mapping Fixes
+//-------------------------------
+	
+	// If Console / Controller combination in use: PS3, DS4 or PS4, DS3:
+	// DS4 controllers send Sixaxis Y and & Z axis data inverted compared to DS3.
+	// [Support for Sixaxis usage on PS4 not guaranteed]
+	if((get_console() == 1 && get_controller() == 4) || (get_console() == 4 && get_controller() == 1)) {
+		set_val(PS3_ACCY, inv(get_val(PS4_ACCY)))
+		set_val(PS3_ACCZ, inv(get_val(PS4_ACCZ)))
+	}
+
+	//XSX: Share is on PS3/4/Wii/Switch ACCX axis, disabling here to avoid potential unwanted presses.
+	if(get_console() == 5 && (get_controller() != 2 || get_controller() != 5)) {
+		set_val(21, 0);
+	}
+	
+	// Different controller from console in use:
+	// This is a generic Share button remap for all controllers to press the proper Share button for console in use.
+	// - DS4 Share button is mapped to Select on other consoles.
+	// - XSX Share button is mapped to PS4 ACCX axis.
+	// - Switch Capture button is mapped to XB1_SYNC / PS4_TOUCH.
+	// Relevant button IDs are configured at init. Due to script functions using DS4 Share this mapping fix is placed at end of main.
+	if(get_console() != get_controller()) {
+		if(get_val(shareKey[get_controller()]) && shareKey[get_console()] < 50) {
+			set_val(shareKey[get_controller()], 0);
+			set_val(shareKey[get_console()], 100);
+		}
+	}
+//-------------------------------
+// Swap Touchpad / Share
+//-------------------------------
+// To avoid a remap conflict, this swap must be performed after Share button remaps.
+	if(touchpadSwap == 3) {
+		swap(PS4_TOUCH, PS4_SHARE)
+	}
 }    
 
 combo Rumble1 { 
@@ -419,6 +471,7 @@ combo Rumble22 {
 }
 
 combo configure {
+	setTrace();
 //-------------------------------
 // Press Start to view profile inversion settings.
 //-------------------------------
@@ -455,7 +508,6 @@ combo configure {
     if(event_press(13)) {
     	pressure=!pressure
     	if(pressure) {combo_run(Rumble1);}
-    	setTrace();
 	}
 //Cycle through buttons/axis to use
     if(event_press(16)) {
@@ -476,7 +528,6 @@ combo configure {
     if(event_press(14)) {
     	psCheckAxis=!psCheckAxis
     	if(psCheckAxis) {combo_run(Rumble1);}
-    	setTrace();
 	}
 //Switch the current Profile Set in use	
     if(event_press(PS3_CIRCLE)) {
@@ -486,7 +537,6 @@ combo configure {
 		} else {
 			profileSet = 1;
 		}
-		setTrace();
     }
 // Profiles: Save current settings to Profile #1 / Profile #2
     if(event_press(PS3_L3)) {
@@ -520,7 +570,6 @@ combo configure {
 			triggerSwap = 0;
 		}
         loadTriggerSwap();
-		setTrace();
     }
     
 //-------------------------------
@@ -534,16 +583,19 @@ combo configure {
 			stickSwap = 0;
 		}
         loadStickSwap();
-		setTrace();
     }
 //-------------------------------
 // Setup: Select / Start to Touchpad Left/Right swap
 //-------------------------------
-// If you are using a DS4 controller the touchpad swap will be disabled.
     if(event_press(PS3_CROSS)) {
+    // If you are using a DS4 controller the selection is limited to Mode #3 - Swap Share & Touchpad press.
     	if(get_controller() == PIO_PS4) {
-    		touchpadSwap = 0;
-    		combo_run(Rumble2);
+    		if(touchpadSwap == 3) {
+    			touchpadSwap = 0;
+			} else {
+    			touchpadSwap = 3;
+    			combo_run(Rumble1);
+    		}
     	} else {     	   
 	        if(touchpadSwap < 2) {
 	        	touchpadSwap = touchpadSwap + 1;
@@ -552,7 +604,6 @@ combo configure {
 	    		touchpadSwap = 0;
     		}
 		}
-		setTrace();
 	}
 	
 //Disable commands to console while selecting script options
@@ -572,20 +623,27 @@ combo configure {
     set_val(18, 0);
     set_val(19, 0);
     set_val(20, 0);
+    set_val(27, 0);
 }
 
 combo createSelectPress {
-//Recreate a Select button press
-	set_val(1, 100);
-	wait(get_ptime(1));
-	set_val(1, 0);
+	// if touchpadSwap is mode #3, we are going to press the console's Share button instead.
+	if((get_console() != 4 && get_controller() == 4) && touchpadSwap == 3) {
+		sp1 = shareKey[get_console()]
+	} else {
+	//Recreate a Select button press
+		sp1 = 1
+	}
+	set_val(sp1, 100);
+	wait(100);
+	set_val(sp1, 0);
 }
 
 combo createTouchpadPress {
 //Recreate a Touchpad button press, real or not.
 	ps4_set_touchpad(tp1, -3);
     set_val(PS4_TOUCH, 100);
-    wait(80);
+    wait(100);
 }
 
 function loadTriggerSwap() {
@@ -675,16 +733,16 @@ function loadStickSwap() {
     }
     if(stickSwap == 6) {
     //Swap touchpad / Wii IR and Left stick.
-        sL1 = PS4_TOUCHY
+        sL1 = 29
         sL2 = PS3_LY
-        sR1 = PS4_TOUCHX
+        sR1 = 28
         sR2 = PS3_LX
     }
     if(stickSwap == 7) {
     //Swap touchpad / Wii IR and Right stick.
-        sL1 = PS4_TOUCHY
+        sL1 = 29
         sL2 = PS3_RY
-        sR1 = PS4_TOUCHX
+        sR1 = 28
         sR2 = PS3_RX
     }
 }
@@ -783,7 +841,12 @@ function sp2(_m1) {
 }
 
 function setTrace() {
-	set_val(TRACE_4, rumble * 100 + psCheckAxis * 10 + profileSet)
-	set_val(TRACE_5, (profile + 1) * 10 + triggerSwap);
-    set_val(TRACE_6, stickSwap * 10 + touchpadSwap);
+/*	if(_m1 == 1) {
+		set_val(TRACE_4, get_console() * 10 + get_controller())
+		set_val(TRACE_5, combo_running(configure))
+	} else {*/
+		set_val(TRACE_4, rumble * 100 + psCheckAxis * 10 + profileSet)
+		set_val(TRACE_5, (profile + 1) * 10 + triggerSwap);
+    	set_val(TRACE_6, stickSwap * 10 + touchpadSwap);
+ //   }
 }

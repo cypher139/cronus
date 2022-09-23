@@ -1,0 +1,363 @@
+//  ____  _          _          _     
+// / ___|(_)_  __   / \   __  _(_)___ 
+// \___ \| \ \/ /  / _ \  \ \/ / / __|
+//  ___) | |>  <  / ___ \  >  <| \__ \
+// |____/|_/_/\_\/_/   \_\/_/\_\_|___/
+//                                          |
+//                                          |
+//                                     -----O-----
+//                                          |
+//                                          |
+
+
+// It's nice to aim by moving the controller instead of the right stick, or drive by tilting the controller. Something different for a change.
+
+
+// This script allows you to remap the Sixaxis motions into moving one of the analog sticks.
+// allowing for easier aiming, or easier driving of your race car, or just a different way to control your game.
+
+// Note: Requires controller with MOTION support. Xbox controllers NOT supported. 
+// (Wii controller currently untested, but try it out!)
+
+
+//Controls:
+
+// Sixaxis: Tilt controller to operate remapped stick. Defaults to right stick.
+
+// L1 (AimButton): When enabled, Hold to activate Sixaxis aiming. If disabled Sixaxis aiming is always active.
+
+// Remapped stick (Default: Right stick): 
+//***(ONLY enabled when 1) Aim button is disabled. 2) Sixaxis Y axis remap is disabled.)***
+// Right stick up: Presses R2.
+// Right stick down: Presses L2.
+
+// Remapped stick:
+// Stick usage will override any Sixaxis aiming.
+
+
+// Select (press): Whatever your game does with Select button.
+// Select (hold): Options menu.
+
+//While holding Select:
+//LEDs: Indication of Sixaxis sensitivity, levels 1-7.
+// Start: Enable/Disable AimButton. Enable for FPS games so Sixaxis only runs when you are aiming. Disable for racing games where you are always using Sixaxis to steer.
+// L1 / R1 : Adjust Sixaxis to stick remap sensitivity
+// R2: Use default sensitivity
+// /\: Invert/Normalize Sixaxis Y axis remap. (1 vibration = inverted)
+// (): Invert/Normalize Sixaxis X axis remap. (2 vibrations = inverted)
+//  X: Enable/Disable Sixaxis Y axis remap. (1 vibration = Enabled)
+// []: Enable/Disable Sixaxis X axis remap. (2 vibrations = Enabled)
+// L3: Sixaxis remaps to LEFT stick.
+// R3: Sixaxis remaps to RIGHT stick.
+
+
+//TRACE Monitors:
+//TRACE_1: Status of Sixaxis Y axis. 5 = remapping. 6 = Remapping - Axis inverted. 12 = Stick override.
+//TRACE_2: Status of Sixaxis X axis. 5 = remapping. 6 = Remapping - Axis inverted. 12 = Stick override.
+//TRACE_5: Current multiplier setting.
+//TRACE_6: Current multiplier in use. This may jump up or down depending on the position of the controller, to provide smoother response.
+
+
+
+int AimButton, SixY, SixX, Sixsensitive, var, var1, var2, multiplier, invertSixY, invertSixX, StickY, StickX, AimButtonEnable, SixXEnable, SixYEnable;
+
+init {
+//Aim Button Enable/Disable:
+//Enable for FPS games where you only need Sixaxis for aiming, disable for racing games where you constantly use the Sixaxis to steer.
+//0 = Disabled. 1 = Enabled.
+
+AimButtonEnable = 0
+
+
+// Aim Button: When this button is held, the script will activate remapping Sixais to the stick.
+// It would be useful to map this to your weapon's scope button, or the game's aiming button, to where a cursor appears on screen.
+// This trigger can be enabled/disabled, e.g. for racing game usage.
+// Default: PS3_L1
+
+AimButton = PS3_L1
+
+
+// Default stick to remap Sixaxis to.
+// Use PS3_LY/LX for left stick, PS3_RY/RX for right stick.
+
+StickY = PS3_RY
+StickX = PS3_RX
+
+//Enable remaps at startup?
+SixXEnable = 1
+SixYEnable = 1
+
+
+
+// There is no need to change anything else!
+Sixsensitive = get_pvar(SPVAR_1, 1, 7, 3);
+invertSixY = get_pvar(SPVAR_2, 0, 2, 0);
+invertSixX = get_pvar(SPVAR_3, 0, 2, 0);
+}
+
+
+// plan for script
+// sixaxis -> right stick while holding AIMBUTTON
+// sensitivity(increase)
+// select: shoulder buttons define sensitivity increase amount
+// l2/r2: presets
+// l1/r1: up/down 10%, spvar
+//test if moving sixaxis and right stick at same time override each other or compliment. compliment would be nice feature
+//disable aimbutton for racing games.
+// disable y ( X button) or x axis ([] button) for racing games / jak ii/3 zoomers/jetboard
+
+
+main {
+
+//Reset leds after customizing script
+if(get_val(PS3_SELECT) != 100) {
+    set_led(0,0);
+    set_led(1,0);
+    set_led(2,0);
+    set_led(3,0);
+    reset_leds();
+}
+
+// press - send to console
+if(event_release(PS3_SELECT) && get_ptime(PS3_SELECT) < 140) {
+    combo_run(cpress);
+} 
+// hold - customize part of script
+if(get_val(PS3_SELECT) && get_ptime(PS3_SELECT) > 140) { 
+    combo_run(customize);
+}
+// Completely block output to console from the controller. If button was pressed, then the press is recreated.
+if(get_val(PS3_SELECT)) {
+    set_val(PS3_SELECT,0);
+}
+
+
+
+
+
+
+//if(get_val(AimButton) || AimButtonEnable == 0 ) {
+if(!combo_running(customize) && (!AimButtonEnable) || get_val(AimButton)) {
+
+
+//if both, it should increase multiplier temporarily, to make diagonal movement faster (*todo)
+
+//if(both y and x sixaxis above 12 , eg diagonal) {
+if(get_val(PS3_ACCX) < 12 && get_val(PS3_ACCX) > -12 && get_val(PS3_ACCY) < 12 && get_val(PS3_ACCY) > -12) {
+        multiplier = Sixsensitive
+        set_val(TRACE_5, Sixsensitive);
+        set_val(TRACE_6, multiplier);
+    } else {
+        multiplier = Sixsensitive + 2
+        set_val(TRACE_5, Sixsensitive);
+        set_val(TRACE_6, multiplier);
+}
+
+//sensitivity(PS3_ACCX, NOT_USE, 327);
+//sensitivity(PS3_ACCY, NOT_USE, 327);
+//deadzone(PS3_ACCX, PS3_ACCY, 25, 0);
+
+//Override Sixaxis if right stick being moved
+    if(get_val(StickY) < 20 && get_val(StickY) > -20 && SixYEnable) {
+            var1 = get_val(PS3_ACCY) * multiplier
+                //Limiter: some games (Uncharted) don't understand values above 100
+                if(var1 > 100) {var1 = 100}
+                if(var1 < -100) {var1 = -100}
+            //Invert option
+            if(invertSixY == 1) {
+                set_val(StickY, var1 * -1);
+                set_val(TRACE_1, 6);
+            } else {
+                set_val(StickY, var1);
+                set_val(TRACE_1, 5);
+            }
+    } else {
+       set_val(TRACE_1, 12);
+    }
+    if(get_val(StickX) < 20 && get_val(StickX) > -20 && SixXEnable) {
+            var2 = get_val(PS3_ACCX) * multiplier
+                if(var2 > 100) {var2 = 100}
+                if(var2 < -100) {var2 = -100}
+//invert option
+            if(invertSixX == 1) {
+                set_val(StickX, var2 * -1);
+                set_val(TRACE_2, 6);
+            } else {
+                set_val(StickX, var2);
+                set_val(TRACE_2, 5);
+            }
+    } else {
+       set_val(TRACE_2, 12);
+    }
+}
+
+
+//Racing: Use the Right stick for acceleration and brakes.
+if(!AimButtonEnable && !SixYEnable) {
+    if(get_val(StickY) > 20) {
+        set_val(PS3_L2, get_val(StickY));
+    } else if(get_val(StickY) < -20) {
+        set_val(PS3_R2, abs(get_val(StickY)));
+    }
+}
+
+
+}    
+
+
+combo Rumble1 { 
+    // 1 short rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo Rumble11 { 
+    // 1 short rumble, 1 long rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+    wait(250);
+    set_rumble(RUMBLE_B, 100);
+    wait(400);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo Rumble2 { 
+    // 2 short rumbles
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+    wait(200);
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo Rumble22 { 
+    // 2 short rumbles, 1 long rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+    wait(200);
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+    wait(250);
+    set_rumble(RUMBLE_B, 100);
+    wait(400);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo customize {
+
+//LED notifications on what level of sensitivity is enabled
+    set_led(0,0);
+    set_led(1,0);
+    set_led(2,0);
+    set_led(3,0);
+    if(Sixsensitive >= 4) {
+        set_led(3, 1);
+    }
+    if(Sixsensitive == 3 || Sixsensitive == 7) {
+        set_led(2, 1);
+    }
+    if(Sixsensitive == 2 || Sixsensitive == 6) {
+        set_led(1, 1);
+    }
+    if(Sixsensitive == 1 || Sixsensitive == 5) {
+        set_led(0, 1);
+    }
+    set_val(TRACE_6, Sixsensitive);
+//sensitivity down
+    if(event_press(PS3_L1)) {
+        var = get_pvar(SPVAR_1, 1, 7, 3) - 1;
+        if(var == 0) {var = 7}
+        set_pvar(SPVAR_1, var);
+        Sixsensitive = var;
+    }
+//sensitivity up
+    if(event_press(PS3_R1)) {
+        var = get_pvar(SPVAR_1, 1, 7, 3) + 1;
+        if(var == 8) {var = 1}
+        set_pvar(SPVAR_1, var);
+        Sixsensitive = var;
+    }
+//default
+    if(event_press(PS3_R2)) {
+        set_pvar(SPVAR_1, 3);
+        Sixsensitive = 3;
+    }
+//Invert Y
+    if(event_press(PS3_TRIANGLE)) {
+        invertSixY=!invertSixY;
+        if(invertSixY == 1) {
+            combo_run(Rumble1);
+        }
+    }
+//Invert X
+    if(event_press(PS3_CIRCLE)) {
+        invertSixX=!invertSixX;
+        if(invertSixX == 1) {
+            combo_run(Rumble2);
+        }
+    }
+
+//Enable Y axis remap from Sixaxis?
+    if(event_press(PS3_CROSS)) {
+        SixYEnable=!SixYEnable;
+        if(SixYEnable == 1) {
+            combo_run(Rumble1);
+        }
+    }
+//Enable X axis remap from Sixaxis?
+    if(event_press(PS3_SQUARE)) {
+        SixXEnable=!SixXEnable;
+        if(SixXEnable == 1) {
+            combo_run(Rumble2);
+        }
+    }
+//Enable/Disable AimButton
+    if(event_press(PS3_START)) {
+        AimButtonEnable=!AimButtonEnable;
+        if(AimButtonEnable == 1) {
+            combo_run(Rumble11);
+        }
+    }
+// Switch sticks
+    if(event_press(PS3_L3)) {
+        combo_run(Rumble11);
+        StickY = PS3_LY
+        StickX = PS3_LX
+        set_val(TRACE_6, 3);
+
+    }
+    if(event_press(PS3_R3)) {
+        combo_run(Rumble22);
+        StickY = PS3_RY
+        StickX = PS3_RX
+        set_val(TRACE_6, 4);
+
+    }
+
+
+//Disable commands to console while selecting script options
+    set_val(PS3_TRIANGLE, 0);
+    set_val(PS3_CIRCLE, 0);
+    set_val(PS3_SQUARE, 0);
+    set_val(PS3_CROSS, 0);
+    set_val(PS3_L1, 0);
+    set_val(PS3_L2, 0);
+    set_val(PS3_R1, 0);
+    set_val(PS3_R2, 0);
+    set_val(PS3_L3, 0);
+    set_val(PS3_R3, 0);
+    set_val(PS3_START, 0);
+}
+
+combo cpress {
+    set_val(TRACE_3, get_ptime(PS3_SELECT));
+    set_val(PS3_SELECT, 100);
+    wait(get_ptime(PS3_SELECT));
+    set_val(PS3_SELECT, 0);
+}

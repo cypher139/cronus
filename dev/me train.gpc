@@ -1,0 +1,61 @@
+/* *
+* GPC SCRIPT
+*
+*  GPC is a scripting language with C-like syntax.
+*  To learn more access GPC Language Reference on Help menu.
+* *********************************************************** */
+
+main {
+
+    //
+    // The main procedure is called before every report is sent to
+    // console. You can think of this procedure as a loop which only
+    // ends when the script is unloaded.
+    //
+    // TODO: handle/change values of buttons, analog stick and/or sensors
+    //
+    
+    if(event_press(PS3_R2)) {
+    	combo_run(ninja);
+   }
+
+}
+
+combo ninja {
+	wait(270);
+	set_val(PS3_L1, 100);
+    wait(10);
+    set_val(PS3_L1, 0);
+    wait(50);
+	set_val(PS3_L1, 100);
+    wait(10);
+    set_val(PS3_L1, 0);
+    wait(50);
+	set_val(PS3_L1, 100);
+    wait(10);
+    set_val(PS3_L1, 0);
+        wait(50);
+	set_val(PS3_L1, 100);
+    wait(10);
+    set_val(PS3_L1, 0);
+    wait(50);
+	set_val(PS3_L1, 100);
+    wait(10);
+    set_val(PS3_L1, 0);
+        wait(50);
+	set_val(PS3_L1, 100);
+    wait(10);
+    set_val(PS3_L1, 0);
+    wait(50);
+	set_val(PS3_L1, 100);
+    wait(10);
+    set_val(PS3_L1, 0);
+        wait(50);
+	set_val(PS3_L1, 100);
+    wait(10);
+    set_val(PS3_L1, 0);
+    wait(50);
+	set_val(PS3_L1, 100);
+    wait(10);
+    set_val(PS3_L1, 0);
+}

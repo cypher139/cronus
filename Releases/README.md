@@ -8,7 +8,7 @@ Each script file also has a listing of its controls and usage in beginning comme
 (above 1,000 downloads on cronusmax.com)  
 **[SixAxis Remapper](Sixaxis%20Remapper/Sixaxis%20Remapper.gpc)** | Updated: 5/7/20 | Downloads: 6070   
 **[Auto-No-Kick](Auto-No-Kick/Auto-No-Kick.gpc)** | Updated: 12/30/21 | Downloads: 4112  
-**[Inversion](Inversion/Inversion.gpc)** | Updated: 1/18/21 | Downloads: 1949   
+**[Inversion](Inversion/Inversion.gpc)** | Updated: 9/22/22 | Downloads: 1950   
 [Automated Turbo Button Press](Automated%20Turbo%20Button%20Press/Automated%20Turbo%%20Press.gpc) | Updated: 9/23/18 | Downloads: 1270  
 [StickyButton](StickyButton/StickyButton.gpc) | Updated: 6/5/20 | Downloads: 1230   
   
@@ -22,7 +22,7 @@ Each script file also has a listing of its controls and usage in beginning comme
 [LBP One-Handed](LBP/LBP%20One-Handed.gpc) | Updated: 7/12/15 | Downloads: 68  
   
 ## Controller Reconfigurations & Task Assistance  
-[One Handed Controller Extra Buttons](One%20Handed%20Controller%20Extra%20Buttons/One%20Handed%20Controller%20Extra%20Buttons.gpc) | Updated: 12/28/21 | Downloads: 194  
+[One Handed Controller Extra Buttons](One%20Handed%20Controller%20Extra%20Buttons/One%20Handed%20Controller%20Extra%20Buttons.gpc) | Updated: 9/22/22 | Downloads: 196  
 [PrecisionAnimator](PrecisionAnimator/PrecisionAnimator.gpc) | Updated: 12/28/19 | Downloads: 338  
 [Thumbstick direction indicator using controller LEDs](misc/DirectionIndicator.gpc) | Updated: 12/5/14 | Downloads: 507  
 [Controller Rumble Test](misc/Controller%20Rumble%20Test.gpc) | Updated: 6/19/20 | Downloads: 697  
@@ -36,4 +36,4 @@ Each script file also has a listing of its controls and usage in beginning comme
 [LittleBigPlanet - Automated Crowd Pleaser trophy](Archived/LittleBigPlanet%20-%20Automated%20Crowd%20Pleaser%20trophy.gpc) | Updated: 5/8/18 | Downloads: 46  
 [ModNation Racers Creation Downloader](Archived/ModNation%20Racers%20Creation%20Downloader.gpc) | Updated: 9/23/18 | Downloads: 142  
   
-#### Last updated: 9/14/22
+#### Last updated: 9/22/22

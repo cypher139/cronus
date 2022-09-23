@@ -1,0 +1,11 @@
+int toggle;
+
+main {
+
+if(event_press(PS3_R3)) {toggle=!toggle}
+
+if(toggle) {
+	set_val(PS3_LX, 75)
+	set_val(PS3_R2, 100)
+}
+}

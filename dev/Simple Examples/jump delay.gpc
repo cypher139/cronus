@@ -1,0 +1,50 @@
+/* *
+* GPC SCRIPT
+*
+*  GPC is a scripting language with C-like syntax.
+*  To learn more access GPC Language Reference on Help menu.
+* *********************************************************** */
+
+int enable, jumpbutton, delay;
+
+init {
+jumpbutton = XB1_A
+delay = 250
+}
+
+main {
+
+if(event_press(PS3_L1)) {
+	enable=!enable
+	if(enable) {combo_run(Rumble1);}
+	}
+
+if(enable && event_release(jumpbutton)) {
+
+set_val(TRACE_2, get_ptime(XB1_A))
+	combo_run(releasedelay)
+}
+set_val(TRACE_1, enable)
+}
+
+combo releasedelay {
+	set_val(jumpbutton, 100)
+	wait(delay)
+	set_val(jumpbutton, 0)
+}
+
+combo Rumble1 { 
+    // 1 short rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo Rumble11 { 
+    // 1 short rumble, 1 long rumble
+	call(Rumble1);
+    wait(250);
+    set_rumble(RUMBLE_B, 100);
+    wait(400);
+    set_rumble(RUMBLE_B, 0);
+}

@@ -1,0 +1,312 @@
+/*
+mint@TMC ~ $ figlet LED
+ _     _____ ____  
+| |   | ____|  _ \ 
+| |   |  _| | | | |
+| |___| |___| |_| |
+|_____|_____|____/ 
+                   
+*/
+
+//This simple script shows what direction either analog stick is pointing.
+//New! It's not as simple, but adds support for Wii and Xbox 360 controllers! 
+
+//(PS3) LED 4 = Left / NW, 3 = Up / NE, 2 = Down / SW, 1 = Right / SE
+//(Wii) LED 1 = Left / NW, 2 = Up / NE, 3 = Down / SW, 4 = Right / SE
+//(360) LED 1 = NW, 2 = NE, 3 = SW, 4 = SE
+
+//1 = NW / L
+//2 = NE / U
+//3 = SW / D
+//4 = SE / R
+
+
+//Controls:
+//While holding Select / - / Back:
+//Start / +: Enable/disable the LEDs
+//L3/R3 / 2/1 / LS/RS: Switch between which stick is represented by the LEDs: L3 for left, R3 for right.
+//L1 / C / LB: Switch to/from diagonal mode. Unsupported by XB_360.
+//L2 / Z / LT: Reload controller type. This is used if you just switched to a different controller.
+
+
+//trace 1: controller detected
+
+
+//------------
+// LED Color Defaults
+//------------
+
+// Idle Color / Off (Non-DS4) (0)
+define Yellow = 0;
+//Hold Axis ON color / On (1)
+define SkyBlue = 1;
+// Step Movement Active & Currently Running color / Fast (2)
+define Pink = 2;
+// Button Press Currently Running color / Slow (3)
+define Green = 3;
+//Misc available colors
+define White = 4;
+define Red = 5;
+define Off = 6;
+
+data (
+0,2,2,0, // Yellow
+2,0,2,0, // SkyBlue
+0,0,0,2, // Pink
+0,0,2,0, // Green
+2,2,2,2, // White
+0,2,0,0, // Red
+0,0,0,0  // Off
+);
+
+int pNum, ControlAxisY, ControlAxisX, deadzoneY, deadzoneX, enableled, ledu, ledd, ledl, ledr, diagonal, xb1Rumble;
+
+init {
+    ControlAxisY = PS3_LY; 
+    ControlAxisX = PS3_LX;
+    deadzoneY = 20
+    deadzoneX = 20
+    controllertype();
+    getPlayerNumber();
+    enableled = 1
+    diagonal = 1
+    setTrace();
+}
+
+main {
+//-------------------------------
+// Configure Button: Send press to console, or configure script settings? 
+//-------------------------------
+    // Configuration Button was Pressed.
+    if(event_release(1) && get_ptime(1) < 200) {combo_run(createSelectPress);} 
+    // Configuration Button was Held, Activate User Configuration Mode
+    if(get_val(1) && get_ptime(1) > 200) {combo_run(configure);}
+    // Block Activation Button Output. If button was pressed, then the press is recreated.
+    if(get_val(1)) {set_val(1, 0);}
+
+//-------------------------------
+// LED set
+//-------------------------------
+	if(enableled) {
+		setledoff();
+		//up or NE
+		if(get_val(ControlAxisY) < -deadzoneY) {
+		    if(!diagonal || get_val(ControlAxisX) > deadzoneX) {
+		        activeLed(ledu, 1); 
+		    }
+		}
+		//down / SW
+		if(get_val(ControlAxisY) > deadzoneY) {
+		    if(!diagonal || get_val(ControlAxisX) < -deadzoneX) {
+		        activeLed(ledd, 1); 
+		    }
+		}
+		//left / NW
+		if(get_val(ControlAxisX) < -deadzoneX) {
+		    if(!diagonal || get_val(ControlAxisY) < -deadzoneY) {
+		        activeLed(ledl, 1); 
+		    }
+		}
+		//right / SE
+		if(get_val(ControlAxisX) > deadzoneX) {
+		    if(!diagonal || get_val(ControlAxisY) > deadzoneY) {
+		        activeLed(ledr, 1); 
+		    }
+		}
+	}
+}
+
+combo configure {
+//      Enable/disables led directions
+    if(event_press(PS3_START)) {  
+    	enableled=!enableled;
+        if(enableled) {
+          //  enableled = 0
+            reset_leds();
+        } else {
+           // enableled = 1
+			setledoff();
+			combo_run(selectionLED);
+        }
+    }
+    
+// Reload controller type variables
+    if(event_press(PS3_L2)) {
+        controllertype();
+        getPlayerNumber();
+        deadzoneY = 20
+        deadzoneX = 20
+    }
+// Use left stick
+    if(event_press(PS3_L3) || event_press(PS4_TOUCH)) {
+        ControlAxisY = PS3_LY
+        ControlAxisX = PS3_LX
+        if(ps4_touchpad(PS4T_P1)) {
+        	ControlAxisY = 29
+        	ControlAxisX = 28
+    	}
+		if(abs(get_val(PS4_ACCX)) > 18) {
+            ControlAxisX = PS4_ACCX
+            ControlAxisY = PS4_ACCY
+            deadzoneY = 5
+            deadzoneX = 5
+            combo_run(Rumble11);
+        }
+        setledoff();
+        combo_run(selectionLED);
+    }
+// Use right stick
+    if(event_press(PS3_R3)) {
+        ControlAxisY = PS3_RY
+        ControlAxisX = PS3_RX
+        setledoff();
+        combo_run(selectionLED);
+    }
+// Use diagonal
+    if(event_press(PS3_L1) && get_controller() != PIO_XB360) {
+        diagonal=!diagonal;
+        setledoff();
+        combo_run(selectionLED);
+    }
+	set_val(PS3_L1, 0);
+	set_val(PS3_L2, 0);
+	set_val(PS3_L3, 0);
+	set_val(PS3_R3, 0);
+	set_val(PS3_START, 0);
+	setTrace();
+}
+
+
+
+combo createSelectPress {
+//Recreate a Select button press
+	set_val(1, 100);
+	wait(get_ptime(1));
+	set_val(1, 0);
+}
+
+
+combo selectionLED {
+	activeLed(Off, 0);
+	wait(150);
+	activeLed(SkyBlue, 0);
+	wait(150);
+	activeLed(Off, 0);
+	wait(150);
+	activeLed(SkyBlue, 0);
+	wait(150);
+	setledoff();
+}
+
+
+combo Rumble1 { 
+    // 1 short rumble
+    set_rumble(RUMBLE_B, 100);
+    wait(200);
+    set_rumble(RUMBLE_B, 0);
+}
+
+combo Rumble11 { 
+    // 1 short rumble, 1 long rumble
+	call(Rumble1);
+    wait(250);
+    set_rumble(RUMBLE_B, 100);
+    wait(400);
+    set_rumble(RUMBLE_B, 0);
+}
+
+function setledoff() {
+    set_led(0,0);
+    set_led(1,0);
+    set_led(2,0);
+    set_led(3,0);
+ 	if(get_controller() == 5 && xb1Rumble) {
+	//Xbox One LEDs to rumble conversion
+		reset_rumble();
+	}
+}
+
+function controllertype() {
+//Detecting controller, please wait...
+    if(get_controller() == 1 || get_controller() == 4){
+    //PS3 / PS4
+//4 == left
+//3 == up
+//2 == down
+//1 == right
+        ledu = 2
+        ledd = 1
+        ledl = 3
+        ledr = 0
+        if(get_controller() == PIO_PS3) {
+        	set_val(TRACE_1, 3);
+    	} else { 
+    		set_val(TRACE_1, 4);	
+		}
+    }
+    if(get_controller() ==  2 || get_controller() == 3){
+    // Wii / X360
+//1 = left
+//2 = up
+//3 = down
+//4 = right
+        ledu = 1
+        ledd = 2
+        ledl = 0
+        ledr = 3
+        if(get_controller() == PIO_XB360){
+        //Only one LED works at a time with 360 controllers, hw design iirc?
+        //1 = NW / L
+//2 = NE / U
+//3 = SW / D
+//4 = SE / R
+            diagonal = 1
+	   		set_val(TRACE_1, 36);
+     	} else {   
+        	set_val(TRACE_1, 72);
+    	}
+	}
+    if(get_controller() == PIO_XB1){
+//No LEDs on XB1, redirect to rumble
+        xb1Rumble = 1
+        set_val(TRACE_1, 1);
+    }
+}
+function activeLed(color, mode) {
+//mode 0= selection, 1 = main
+	if(enableled == 0) {return}
+	//PS4 LEDs
+	if(get_controller() == 4) {
+		set_led(LED_1, dbyte(color * 4));
+		set_led(LED_2, dbyte((color * 4) + 1));
+		set_led(LED_3, dbyte((color * 4) + 2));
+		set_led(LED_4, dbyte((color * 4) + 3));
+	} else {
+		if(color > 3) {color = 2}
+		if(color == 6) {color = 0}
+		if(mode) {
+			set_led(color, 1);
+		} else {
+			set_led(pNum, color);
+		}
+	}
+ 	if(get_controller() == 5 && xb1Rumble) {
+	//Xbox One LEDs to rumble conversion
+		set_rumble(color, 50);
+	}
+}
+
+function getPlayerNumber(i3) {
+    i3 = 0;
+    reset_leds();
+    while(i3 < 4){
+        if(get_led(i3) == 1) pNum = i3;
+        i3++;
+    }
+}      
+
+function setTrace() {
+//	set_val(TRACE_4, rumble * 100 + psCheckAxis * 10 + profileSet)
+//	set_val(TRACE_5, (profile + 1) * 10 + triggerSwap);
+    set_val(TRACE_6, enableled * 100 + diagonal * 10 + pNum);
+}

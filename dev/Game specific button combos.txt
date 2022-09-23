@@ -1,0 +1,38 @@
+Controls from various script quick edits, kept in case found useful to implement later.
+
+
+NFS MW:
+ Auto no kick: Hold L2+R2, press L1 every 16 secs (burnout mode for boosting mod unlocks iirc)
+
+HAWX:
+ Auto no kick: Press X every 9 seconds, step wait 1 (implemented in ank 3.0 as hold time 16190)
+
+watch dogs:
+ Inversion: (implemented in 2.8 as pskeyP1/P2 and ps checkaxis). switch to profile 1 on 360_B, p2 on 360_X
+
+LBP3: Flying the bird character only with left stick, varying wing flap timing on Y axis:
+(useful for one hand controller character in certain mp minigames)
+May be useful to implement into LBP master.
+ Auto no kick: activation axis right stick. press X. holdTime = 150 restTime = 568
+if(event_press(PS4_DOWN)) { 
+combo_stop(performAction);
+enable = !enable;
+}
+
+//up -
+if(get_val(PS4_LY) < -activationAxis_DZ) {
+	holdTime = 90
+	restTime = 180
+	set_val(TRACE_3, 11)
+	//down
+} else if(get_val(PS4_LY) > activationAxis_DZ) {
+	set_val(TRACE_3, 22)
+	holdTime = 110
+	restTime = 840
+//hold
+} else {
+	set_val(TRACE_3, 33)
+	holdTime = 150
+	restTime = 568
+	}
+

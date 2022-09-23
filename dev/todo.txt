@@ -2,3 +2,35 @@ TODO
 Inversion:
 webman screenshot combo l2 r2 select start, aurora hold start press back
 dpad to analog
+ps4_set_touchpad replacement, restest and verify functionality
+//sensitivity
+	if(divY != 1) {
+        set_val(PS3_LY, get_val(PS3_LY) - (get_val(PS3_LY) / divY));
+        set_val(PS3_RY, get_val(PS3_RY) - (get_val(PS3_RY) / divY));
+    }
+    if(divX != 1) {
+        set_val(PS3_LX, get_val(PS3_LX) - (get_val(PS3_LX) / divX));
+        set_val(PS3_RX, get_val(PS3_RX) - (get_val(PS3_RX) / divX));
+    }
+}  
+
+
+
+// Digital to Analog swap
+    if(get_lval(16)){set_val(PS3_LX, 100);}//right
+    if(get_lval(15)){set_val(PS3_LX,-100);}
+    if(get_lval(14)){set_val(PS3_LY, 100);}//down
+    if(get_lval(13)){set_val(PS3_LY,-100);}
+
+LBP master: port ank edit to fly Swoop with stick, maybe to lbp one handed.
+
+ABSW first planet grind: test on 3/v/4, documentation, release.
+
+Yorbie univnert: test, document, release.
+
+me train: film kickglitch with cm traces showing time elapsed since last R2 press, record where to press L1
+
+
+sixaxis aim: is possible? gyro use?
+
+bejeweled 3 - adapt mnr downloader

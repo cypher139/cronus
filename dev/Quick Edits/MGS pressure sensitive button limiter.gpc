@@ -1,0 +1,12 @@
+int enable;
+
+main {
+
+	if(event_press(PS3_SELECT)) {
+		enable=!enable;
+	}
+
+    if(enable && get_val(PS3_SQUARE) > 50) {
+          set_val(PS3_SQUARE, 50)
+    }
+}

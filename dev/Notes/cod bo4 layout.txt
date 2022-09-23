@@ -1,0 +1,38 @@
+cod bo4
+Button Layout / Default
+
+Left Stick – Movement
+
+Right Stick – Camera Controls
+
+L3 – Sprint / Hold Breath
+
+R3 – Melee Attack
+
+L1 – Heal
+
+L2 – Aim Down Sights
+
+R1 – Throw Lethals
+
+R2 – Fire Weapon
+
+Triangle – Switch Weapon / Use Scrorestreak
+
+Square – Use / Reload
+
+X – Jump
+
+O – Crouch / Prone
+
+Options Button – Objectives Menu
+
+Touch Pad – Scoreboard
+
+D-Pad Up – Scorestreak Selection
+
+D-Pad Down – Scorestreak Selection
+
+D-Pad Right – Scorestreak Selection
+
+D-Pad Left – Scorestreak Selection

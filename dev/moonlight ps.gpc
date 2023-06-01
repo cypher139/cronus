@@ -1,0 +1,17 @@
+// Workaround for PS button on Moonlight X-Aim controller, which does not have PS
+
+main {
+	if(get_val(PS3_START)) {
+		if(get_val(PS3_LY) > 50) {
+			set_val(PS3_START, 0);
+			set_val(PS3_LY, 0);
+			set_val(PS3_PS, 100);
+		} else if(get_val(PS3_LX) > 50) {
+		// Alternate button combo for Webman
+			set_val(PS3_START, 0);
+			set_val(PS3_LX, 0);
+			set_val(PS3_R2, 100);
+			set_val(PS3_TRIANGLE, 100);
+		}
+	}
+}

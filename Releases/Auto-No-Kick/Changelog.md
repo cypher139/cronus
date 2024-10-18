@@ -1,5 +1,12 @@
 ### Auto-No-Kick
 
+###### 3.2 (10/18/24)
+
+(Unreleased to GPC Library)  
+Additions:
+- Added preset for Warhammer 40,000: Space Marine. 
+
+
 ###### 3.1 (12/29/21)
 
 Additions:

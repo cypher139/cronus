@@ -4,7 +4,7 @@
   / _ \| | | | __/ _ \ _____|  \| |/ _ \ _____| ' /| |/ __| |/ /
  / ___ \ |_| | || (_) |_____| |\  | (_) |_____| . \| | (__|   < 
 /_/   \_\__,_|\__\___/      |_| \_|\___/      |_|\_\_|\___|_|\_\
-                        									//v. 3.1 - 12/29/2021
+                        									//v. 3.2 - 10/18/2024
 
 // Author: CypherNova139		----		Console: All		----		Controller: All		----		Script Usage: Anti-Idle / Task Automation
 
@@ -130,8 +130,8 @@
  Options/Start/Guide: Jetpack Joyride [Press X/A / Wait Time .25 seconds] (Coin Grinding)
                               * Hold Select + Down to set a more rapid-fire turbo mode - used for Cyberpunk 2077 <=1.11 duplication glitch.
                   R1: Tom Clancy's HAWX [Press X/A / Hold R1/RB for Timed interval of 16 seconds / Wait Time 9 seconds]
-         D-Pad Right: *Motorstorm: Apocalypse [Press X and Square / Hold R2 / Wait Time 1.5 seconds]
-                              * Meant for online XP Grinding, however servers have closed. This preset kept in case it is found useful in another game.
+         D-Pad Right: *Warhammer 40,000: Space Marine [Press Down and X / Hold R2 / Wait Time 1.5 seconds]
+                              * Online XP/Kills Grinding, Used to respawn fodder players on capture point A.
           D-Pad Down: Tomb Raider (2013) [Press Start / Wait Time 16 seconds] (A slow but totally idle XP grinding method via solo FFA match)
           D-Pad Left: *Quantum Theory [Hold RY Down / Wait Time - seconds]
                               * Used on losing teams to stay in spawn area
@@ -438,20 +438,19 @@ combo configure {
 			waitTime = 250
         	set_val(TRACE_4, 46);
 	    }
-/*	       // D-Pad Right: Motorstorm: Apocalypse - Eliminator XP Grinding **Servers Closed, kept in case it is found useful in another game**
-	// How to use script in MSA:
-	// Use this script on the CronusMAX set as your main controller, player 1. You will also need a 2nd controller idle as player 2, no cronusmax needed for P2.
-	// Go to custom game, start an eliminator event, perks off, bets on, both elimination settings to 5. Start the match, Game and script will do the rest of leveling up.
+            // D-Pad Right: Warhammer 40,000: Space Marine - Kill Grinds.
+	// How to use script in W:SM:
+	// Use this script on dummy players. Start a private match with max time and points. Have the team with the kill fodder players capture point A.
+	// Afterwards, script will keep kill fodder players respawning at capture point A, while other team grinds their needed kills for trophies.
 	    if(event_press(16)) {
 	    	presetSetDefault();
-	        Button1 = PS3_CROSS
+	        Button1 = PS3_DOWN
 			useButton2 = 1
-			Button2 = PS3_SQUARE
-			useHoldButton = 1
-			holdButton1 = PS3_R2
-			waitTime = 1500
+			Button2 = PS3_CROSS
+			useHoldButton = 0
+			waitTime = 10000
 	        set_val(TRACE_4, 47);
-        } */
+        } 
             // D-Pad Down: Tomb Raider (2013) MP XP grind
    	// How to use script in TR 2013:
 	// Use this script on the CronusMAX set as your main controller, player 1.
